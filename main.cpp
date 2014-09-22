@@ -6,7 +6,8 @@
 #include "utils.hpp"
 #include <exception>
 
-const std::string help ="Usage: \n";
+
+const std::string help ="Usage:\n createlog <file-name.log>\n add <message_string>\n closelog \n verify <entry_no> \n verifyall <log-file-name.log> <out-file-name.txt>\n";
 
 void
 do_command(std::string cmd){
@@ -104,7 +105,6 @@ main (int argc, char **argv)
   while (1){
     std::cout<<">";
     std::getline(std::cin,cmd);
-    std::cout<<cmd<<"\n";
     try{
       do_command(cmd);
     }
