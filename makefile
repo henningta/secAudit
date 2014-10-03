@@ -1,7 +1,8 @@
 CC=g++
 CFLAGS=-c -Wall
 LDFLAGS=
-SOURCES=main.cpp utils.cpp
+SOURCES=main.cpp utils.cpp TrustedObject.cpp UntrustedObject.cpp \
+	VerificationObject.cpp Log.cpp Message.cpp
 OBJECTS=$(SOURCES:.cpp=.o)
 EXECUTABLE=SecureAudit
 

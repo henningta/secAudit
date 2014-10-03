@@ -1,6 +1,6 @@
 class TrustedObject {
 private:
-	std::String keyA0;
+	std::String _keyA0;
 
 public:
 	void verifyInitMessage();

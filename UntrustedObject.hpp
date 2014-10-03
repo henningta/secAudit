@@ -1,6 +1,6 @@
 class UntrustedObject {
 private:
-	Log log;
+	Log _log;
 public:
 	void generateInitMessage();
 	void verifyInitResponse();
