@@ -1,1 +1,3 @@
+#include "TrustedObject.hpp"
+
 
