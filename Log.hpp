@@ -1,13 +1,21 @@
 #ifndef __LOG_HPP__
 #define __LOG_HPP__
 
-#include "Message.hpp"
+#include <string>
+#include <vector>
+
+#include "LogEntry.hpp"
 
 class Log {
+private:
+	std::string 			_logName;
+	std::vector<LogEntry> 	_logEntries;
 public:
-	void open();
+	Log(std::string logName) : _logName(logName) {}
+
+	bool open();
 	void close();
-	void append(Message & message);
+	void append(const std::string & message);
 };
 
 #endif // __LOG_HPP__
