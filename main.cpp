@@ -6,21 +6,20 @@
 #include <exception>
 
 #include "Log.hpp"
+#include "TrustedObject.hpp"
+#include "UntrustedObject.hpp"
 #include "utils.hpp"
+#include "VerificationObject.hpp"
 
 
 const std::string help ="Usage:\n createlog <file-name.log>\n add <message_string>\n closelog \n verify <entry_no> \n verifyall <log-file-name.log> <out-file-name.txt>\n";
 
-// travis henning
-bool createLog(const std::string & logName) {
-	Log log(logName);
-	return log.open();
-}
-
-// jackson reed
-void
-do_command(std::string cmd) {
-
+// jackson reed, travis henning
+void do_command(
+		std::string cmd,
+		UntrustedObject & untrustedObject,
+		TrustedObject & trustedObject,
+		VerificationObject & verificationObject) {
 
 	std::size_t pos;
 	if((pos=cmd.find("createlog")) != std::string::npos){
@@ -32,7 +31,7 @@ do_command(std::string cmd) {
 				std::cout<<"createlog : "<<cmdTokens[2]<<"\n";
 			}
 		} else if(cmdTokens.size()==2) {
-			if (createLog(cmdTokens[1])) {
+			if (untrustedObject.createLog(cmdTokens[1])) {
 				std::cout << "createlog : " << cmdTokens[1] << "\n";
 			} else {
 				std::cout << "Log creation failed.\n";
@@ -101,6 +100,10 @@ do_command(std::string cmd) {
 
 // jackson reed
 int main (int argc, char **argv) {
+	UntrustedObject untrustedObject;
+	TrustedObject trustedObject;
+	VerificationObject verificationObject;
+
 	std::string cmd="";
 	for(int i =1; i< argc; i++){
 		cmd+=argv[i];
@@ -108,7 +111,7 @@ int main (int argc, char **argv) {
 	}
 	cmd = cmd.substr(0, cmd.size()-1);
 	try{
-		do_command(cmd);
+		do_command(cmd, untrustedObject, trustedObject, verificationObject);
 	}
 	catch(std::exception& e){
 		std::cout<<e.what()<<"\n";
@@ -117,7 +120,8 @@ int main (int argc, char **argv) {
 		std::cout<<">";
 		std::getline(std::cin,cmd);
 		try{
-			do_command(cmd);
+			do_command(cmd, untrustedObject, trustedObject,
+					verificationObject);
 		}
 		catch(std::exception& e){
 			std::cout<<e.what()<<"\n";

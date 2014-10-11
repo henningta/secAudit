@@ -9,7 +9,8 @@ private:
 public:
 	void generateInitMessage();
 	void verifyInitResponse();
-	void createLogEntry();
+	bool createLog(const std::string & logName);
+	void createLogEntry(const std::string & message);
 	void closeLog();
 };
 

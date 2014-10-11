@@ -11,7 +11,10 @@ private:
 	std::string 			_logName;
 	std::vector<LogEntry> 	_logEntries;
 public:
+	Log() {}
 	Log(std::string logName) : _logName(logName) {}
+
+	inline void setName(const std::string & logName) { _logName = logName; }
 
 	bool open();
 	void close();
