@@ -4,9 +4,9 @@
 #include <string>
 
 enum EntryType {
-	OPEN,
-	CLOSE,
-	APPEND
+	LOG_ENTRY_OPEN,
+	LOG_ENTRY_CLOSE,
+	LOG_ENTRY_APPEND
 };
 
 class LogEntry {

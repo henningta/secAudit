@@ -1,23 +1,51 @@
 #include "Log.hpp"
 
 #include <iostream>
-#include <fstream>
 
 // travis henning
 bool Log::open() {
-	std::ofstream logFile;
-	logFile.open(_logName.c_str());
+	_logFile.open(_logName.c_str(), std::ios::app);
 
-	if (!logFile.is_open()) {
+	if (!_logFile.is_open()) {
 		return false;
 	}
 
 	std::string message = "Log file \"" + _logName + "\" created.";
-	LogEntry entry(OPEN, message);
+	LogEntry entry(LOG_ENTRY_OPEN, message);
 	_logEntries.push_back(entry);
 
-	logFile << entry.getMessage();
-	logFile.close();
+	_logFile << entry.getMessage();
 
 	return true;
 }
+
+// travis henning
+bool Log::close() {
+	if (_logFile.is_open()) {
+		std::string message = "\nLog file \"" + _logName + "\" closed.";
+		LogEntry entry(LOG_ENTRY_CLOSE, message);
+		_logEntries.push_back(entry);
+
+	_logFile << entry.getMessage();
+
+		_logFile.close();
+		return true;
+	}
+
+	return false;
+}
+
+// travis henning
+bool Log::append(const std::string & message) {
+	if (!_logFile.is_open()) {
+		return false;
+	}
+
+	LogEntry entry(LOG_ENTRY_APPEND, message);
+	_logEntries.push_back(entry);
+
+	_logFile << '\n' << entry.getMessage();
+
+	return true;
+}
+

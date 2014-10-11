@@ -5,7 +5,7 @@
 #include <string>
 #include <sstream>
 /* utils.hpp
- * usefull fuctions for general use cases
+ * useful fuctions for general use cases
  */
 
 //Strings
@@ -15,5 +15,16 @@
 std::vector<std::string> split(const std::string &s, char delim);
 std::vector<std::string> &split(const std::string &s, char delim, std::vector<std::string> &elems);
 
-#endif
+/*
+ * NumToString
+ * Converts number to string and returns the value
+ */
+template<typename T>
+std::string numToString(T num) {
+	std::ostringstream ss;
+	ss << num;
+	return ss.str();
+}
+
+#endif // UTILS
 
