@@ -10,13 +10,15 @@
 
 //Strings
 
+//jackson reed
 //Tokenize a string, example:
 //std::vector<std::string> x = split("one:two::three", ':');
 std::vector<std::string> split(const std::string &s, char delim);
 std::vector<std::string> &split(const std::string &s, char delim, std::vector<std::string> &elems);
 
 /*
- * NumToString
+ * travis henning
+ * numToString
  * Converts number to string and returns the value
  */
 template<typename T>

@@ -21,18 +21,18 @@ bool Log::open() {
 
 // travis henning
 bool Log::close() {
-	if (_logFile.is_open()) {
-		std::string message = "\nLog file \"" + _logName + "\" closed.";
-		LogEntry entry(LOG_ENTRY_CLOSE, message);
-		_logEntries.push_back(entry);
+	if (!_logFile.is_open()) {
+		return false;
+	}
+
+	std::string message = "\nLog file \"" + _logName + "\" closed.";
+	LogEntry entry(LOG_ENTRY_CLOSE, message);
+	_logEntries.push_back(entry);
 
 	_logFile << entry.getMessage();
 
-		_logFile.close();
-		return true;
-	}
-
-	return false;
+	_logFile.close();
+	return true;
 }
 
 // travis henning
