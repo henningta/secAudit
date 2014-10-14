@@ -6,12 +6,9 @@
 # *.priv        - private key
 # *.cert.csr    - certificate signing request
 # *.cert        - signed certificate
-<<<<<<< HEAD
 #
 # N.B:  Public keys are in X.509 style and pivate keys are in
 #       the "traditional" or "SSLeay" format
-=======
->>>>>>> f627d73e9be73d775c5c1645e224146aaa91d4ce
 
 
 # set the error flag if a command fails
@@ -32,11 +29,8 @@ fi
 
 cd $DIR
 
-<<<<<<< HEAD
 # generate untrusted server keys and CSR
 
-=======
->>>>>>> f627d73e9be73d775c5c1645e224146aaa91d4ce
 # generate 2048-bit RSA key pair
 echo -e "\n===> Generating keys for the untrusted server...\n"
 openssl genrsa -out ${UNTRUSTED}.priv 2048
@@ -45,7 +39,6 @@ status
 # export public key to separate file
 openssl rsa -in ${UNTRUSTED}.priv -outform PEM -pubout -out ${UNTRUSTED}.pub
 
-<<<<<<< HEAD
 # create certificate signing request (CSR) file for untrusted server
 echo -e "\n===> Generating CSR for untrusted server...\n"
 openssl req -new -key ${UNTRUSTED}.priv \
@@ -78,7 +71,6 @@ status
 
 # trusted server signs the CSR
 
-=======
 # generate trusted server keys and CSR
 echo -e "\n===> Generating keys and self-signing trusted server CSR...\n"
 openssl req -x509 -nodes -newkey rsa:2048 -keyout ${TRUSTED}.priv -outform PEM \
@@ -98,7 +90,6 @@ openssl req -new -key ${UNTRUSTED}.priv \
 status
 
 # trusted server signs the CSR
->>>>>>> f627d73e9be73d775c5c1645e224146aaa91d4ce
 echo -e "\n===> Signing certificate of untrusted server...\n"
 openssl x509 -req -in ${UNTRUSTED}.cert.csr -out ${UNTRUSTED}.cert \
  -CA ${TRUSTED}.cert -CAkey ${TRUSTED}.priv -CAcreateserial
