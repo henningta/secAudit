@@ -20,6 +20,12 @@ function status()
 UNTRUSTED='untrusted'
 TRUSTED='trusted'
 
+DIR=keys
+if [[ ! -d $DIR ]]; then mkdir $DIR
+fi
+
+cd $DIR
+
 # generate 2048-bit RSA key pair
 echo -e "\n===> Generating keys for the untrusted server...\n"
 openssl genrsa -out ${UNTRUSTED}.priv 2048
