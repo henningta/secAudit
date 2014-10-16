@@ -424,6 +424,7 @@ err:
 	if (ctx)
 		EVP_CIPHER_CTX_free(ctx);
 
+	return ret;
 }
 
 /**
@@ -483,7 +484,8 @@ err:
 	// clean up
 	if (ctx)
 		EVP_CIPHER_CTX_free(ctx);
-
+	
+	return ret;
 }
 
 /**
