@@ -9,7 +9,6 @@
 */
 	
 // TODO: - Use malloc for all enryptions (and decryptions?)
-//       - Symmetric encryption/decryption
 //	 - Move genLogID and getCurrentTimeStamp to more log-related code?
 
 #include "cryptsuite.hpp"
@@ -168,10 +167,10 @@ err:
 
   Outputs a signed message digest from a message
 
-  @parm in     Plaintext
-  @parm inLen  Length of the plaintext
-  @parm out    Digital signature buffer
-  @parm pkey   Private key
+  @param in     Plaintext
+  @param inLen  Length of the plaintext
+  @param out    Digital signature buffer
+  @param pkey   Private key
 
   @return      0 if successful, -1 otherwise
 
@@ -231,10 +230,10 @@ err:
   Verifies a signed message digest by hashing the plaintext
   and comparing the output with the decrypted one
 
-  @parm in     Plaintext
-  @parm inLen  Length of the plaintext
-  @parm sig    Digital signature buffer
-  @parm pkey   Public key
+  @param in     Plaintext
+  @param inLen  Length of the plaintext
+  @param sig    Digital signature buffer
+  @param pkey   Public key
 
   @return      0 if successful, -1 otherwise
 
@@ -289,10 +288,10 @@ err:
 
   Performs a public-key encryption of a message
 
-  @parm in     Plaintext
-  @parm inLen  Length of the plaintext
-  @parm out    Encrypted output
-  @parm pkey   Public key
+  @param in     Plaintext
+  @param inLen  Length of the plaintext
+  @param out    Encrypted output
+  @param pkey   Public key
 
   @return      0 if successful, -1 otherwise
 
@@ -331,10 +330,10 @@ err:
 
   Performs a public-key decryption of a message
 
-  @parm in     Plaintext
-  @parm inLen  Length of the plaintext
-  @parm out    Decrypted output
-  @parm pkey   Private key
+  @param in     Plaintext
+  @param inLen  Length of the plaintext
+  @param out    Decrypted output
+  @param pkey   Private key
 
   @return      0 if successful, -1 otherwise
 
@@ -369,17 +368,136 @@ err:
 
 /**
 
+  symEncrypt
+
+  Performs a symmetric encryption of a message. The 
+  cipher, mode and key length used are specified in
+  the header file and can be changed accordingly
+
+  @param in      Plaintext
+  @param inLen   Length of the plaintext
+  @param key     Key (Refer to header file for recommended length)
+  @param out     Encrypted buffer (size should be >= inLen + 1 block size)
+  @param outLen  Bytes written to encrypted buffer
+
+  @return      0 if successful, -1 otherwise
+
+*/
+int symEncrypt(unsigned char *in, int inLen, unsigned char *key, unsigned char *out, int *outLen) {
+
+	EVP_CIPHER_CTX *ctx;
+	int tmpLen;
+	int ret;
+	
+	ret = 0;
+
+	// create and initalize context
+	if ( ! (ctx = EVP_CIPHER_CTX_new()) ){
+		ret = -1;
+		goto err;
+	}
+
+	// initialize encryption operation (not using an IV)	
+	if ( EVP_EncryptInit_ex(ctx, SYM_ALGO, NULL, key, NULL) != 1) {
+		ret = -1;
+		goto err;
+	}
+
+	// encrypt message
+	if ( EVP_EncryptUpdate(ctx, out, &tmpLen, in, inLen) != 1 ) {
+		ret = -1;
+		goto err;
+	}
+	*outLen = tmpLen;
+
+	// finalize encryption
+	if ( EVP_EncryptFinal_ex(ctx, out + tmpLen, &tmpLen) != 1) {
+		ret = -1;
+		goto err;
+	}
+	*outLen += tmpLen;
+	
+err:
+	ERR_print_errors_fp(fpErr);
+
+	// clean up
+	if (ctx)
+		EVP_CIPHER_CTX_free(ctx);
+
+}
+
+/**
+
+  symDecrypt
+
+  Performs a symmetric decryption of a message. The 
+  cipher, mode and key length used are specified in
+  the header file and can be changed accordingly
+
+  @param in      Plaintext
+  @param inLen   Length of the plaintext
+  @param key     Key (same key used in symEncrypt)
+  @param out     Decrypted buffer
+  @param outLen  Bytes written to decrypted buffer
+
+  @return      0 if successful, -1 otherwise
+
+*/
+int symDecrypt(unsigned char *in, int inLen, unsigned char *key, unsigned char *out, int *outLen) {
+
+	EVP_CIPHER_CTX *ctx;
+	int tmpLen;
+	int ret;
+	
+	ret = 0;
+
+	// create and initalize context
+	if ( ! (ctx = EVP_CIPHER_CTX_new()) ){
+		ret = -1;
+		goto err;
+	}
+
+	// initialize decryption operation (not using an IV)	
+	if ( EVP_DecryptInit_ex(ctx, SYM_ALGO, NULL, key, NULL) != 1) {
+		ret = -1;
+		goto err;
+	}
+
+	// decrypt message
+	if ( EVP_DecryptUpdate(ctx, out, &tmpLen, in, inLen) != 1 ) {
+		ret = -1;
+		goto err;
+	}
+	*outLen = tmpLen;
+
+	// finalize decryption
+	if ( EVP_DecryptFinal_ex(ctx, out + tmpLen, &tmpLen) != 1) {
+		ret = -1;
+		goto err;
+	}
+	*outLen += tmpLen;
+	
+err:
+	ERR_print_errors_fp(fpErr);
+
+	// clean up
+	if (ctx)
+		EVP_CIPHER_CTX_free(ctx);
+
+}
+
+/**
+
   genLogID 
 
   Generates a new log ID based on the date and time
   in the following format: YYYYMMDD_HHMM_SS
 
-  @parm id     string buffer for the ID
+  @param id     string buffer for the ID
 
   @return      0 if successful, -1 otherwise
 
 */
-
 int genLogID(unsigned char *id) {
 	time_t 		t;
 	struct tm 	*tmp;
@@ -402,7 +520,6 @@ int genLogID(unsigned char *id) {
   @return  Time in seconds
 
 */
-
 long int getCurrentTimeStamp(void) {
 	struct 		timeval tv;
 

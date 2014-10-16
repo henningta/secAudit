@@ -21,8 +21,17 @@
 #define UNTRUSTED_CERT  	"keys/untrusted.cert"
 
 // chosen message digest algorithm and length (2048-bit key)
+// algorithm can be changed, but SIG_BYTES must remain 
+// the same because of our 2048-bit key
 #define SIG_MD_ALGO		EVP_sha512()
 #define SIG_BYTES		256
+
+// chosen symmetric cipher and mode
+// all 3 constants need to be updated if there is any change in the cipher
+// or mode
+#define SYM_ALGO		EVP_aes_128_cbc()
+#define SYM_KEY_LEN		16
+#define SYM_BLK_SIZE		16
 
 // sizes for initialization
 #define SESSION_KEY_LEN		16		// k0 and k1 
@@ -42,8 +51,8 @@ int createSignature(unsigned char *in, int inLen, unsigned char *out, EVP_PKEY *
 int verifySignature(unsigned char *in, int inLen, unsigned char *sig, EVP_PKEY *pkey);
 int pkEncrypt(unsigned char *in, int inLen, unsigned char *out, EVP_PKEY *pkey);
 int pkDecrypt(unsigned char *in, int inLen, unsigned char *out, EVP_PKEY *pkey);
-
-// symmetric encryption/decryption functions to be added
+int symEncrypt(unsigned char *in, int inLen, unsigned char *key, unsigned char *out, int *outLen);
+int symDecrypt(unsigned char *in, int inLen, unsigned char *key, unsigned char *out, int *outLen);
 
 // in this namespace for now
 int genLogID(unsigned char *id);
