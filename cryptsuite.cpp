@@ -297,6 +297,7 @@ err:
 
 */
 int pkEncrypt(unsigned char *in, size_t inLen, unsigned char *out, EVP_PKEY *pkey) {
+
 	EVP_PKEY_CTX 	*ctx;
 	size_t 		outlen;
 	int		ret;
@@ -321,6 +322,9 @@ int pkEncrypt(unsigned char *in, size_t inLen, unsigned char *out, EVP_PKEY *pke
 err:
 	ERR_print_errors_fp(fpErr);
 	
+	// clean up
+	if (ctx)
+		EVP_PKEY_CTX_free(ctx);
 	
 	return ret;
 }
@@ -377,6 +381,10 @@ int pkDecrypt(unsigned char *in, size_t inLen, unsigned char **out, size_t *outL
 
 err:
 	ERR_print_errors_fp(fpErr);
+
+	// clean up
+	if (ctx)
+		EVP_PKEY_CTX_free(ctx);
 	
 	return ret;
 }
@@ -413,7 +421,7 @@ int symEncrypt(unsigned char *in, size_t inLen, unsigned char *key, unsigned cha
 	}
 
 	// initialize encryption operation (not using an IV)	
-	if ( EVP_EncryptInit_ex(ctx, SYM_ALGO, NULL, key, NULL) != 1) {
+	if ( EVP_EncryptInit_ex(ctx, SYM_ALGO, NULL, key, NULL) != 1 ) {
 		ret = -1;
 		goto err;
 	}
@@ -426,7 +434,7 @@ int symEncrypt(unsigned char *in, size_t inLen, unsigned char *key, unsigned cha
 	*outLen = tmpLen;
 
 	// finalize encryption
-	if ( EVP_EncryptFinal_ex(ctx, out + tmpLen, (int *) &tmpLen) != 1) {
+	if ( EVP_EncryptFinal_ex(ctx, out + tmpLen, (int *) &tmpLen) != 1 ) {
 		ret = -1;
 		goto err;
 	}
@@ -474,7 +482,7 @@ int symDecrypt(unsigned char *in, int inLen, unsigned char *key, unsigned char *
 	}
 
 	// initialize decryption operation (not using an IV)	
-	if ( EVP_DecryptInit_ex(ctx, SYM_ALGO, NULL, key, NULL) != 1) {
+	if ( EVP_DecryptInit_ex(ctx, SYM_ALGO, NULL, key, NULL) != 1 ) {
 		ret = -1;
 		goto err;
 	}
@@ -487,7 +495,7 @@ int symDecrypt(unsigned char *in, int inLen, unsigned char *key, unsigned char *
 	*outLen = tmpLen;
 
 	// finalize decryption
-	if ( EVP_DecryptFinal_ex(ctx, out + tmpLen, &tmpLen) != 1) {
+	if ( EVP_DecryptFinal_ex(ctx, out + tmpLen, &tmpLen) != 1 ) {
 		ret = -1;
 		goto err;
 	}
