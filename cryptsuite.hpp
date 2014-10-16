@@ -26,6 +26,10 @@
 #define SIG_MD_ALGO		EVP_sha512()
 #define SIG_BYTES		256
 
+// encrypted output for public-key encryption
+// value will always be the same as SIG_BYTES
+#define PK_ENC_BYTES		256
+
 // chosen symmetric cipher and mode
 // all 3 constants need to be updated if there is any change in the cipher
 // or mode
@@ -47,12 +51,12 @@ namespace cryptsuite {
 int loadRSAPublicKey(const char *keyPath, EVP_PKEY **pkey);
 int loadRSAPrivateKey(const char *keyPath, EVP_PKEY **pkey);
 int loadX509Cert(const char *certPath, X509 **cert);
-int createSignature(unsigned char *in, int inLen, unsigned char *out, EVP_PKEY *pkey);
-int verifySignature(unsigned char *in, int inLen, unsigned char *sig, EVP_PKEY *pkey);
-int pkEncrypt(unsigned char *in, int inLen, unsigned char *out, EVP_PKEY *pkey);
-int pkDecrypt(unsigned char *in, int inLen, unsigned char *out, EVP_PKEY *pkey);
-int symEncrypt(unsigned char *in, int inLen, unsigned char *key, unsigned char *out, int *outLen);
-int symDecrypt(unsigned char *in, int inLen, unsigned char *key, unsigned char *out, int *outLen);
+int createSignature(unsigned char *in, size_t inLen, unsigned char *out, EVP_PKEY *pkey);
+int verifySignature(unsigned char *in, size_t inLen, unsigned char *sig, EVP_PKEY *pkey);
+int pkEncrypt(unsigned char *in, size_t inLen, unsigned char *out, EVP_PKEY *pkey);
+int pkDecrypt(unsigned char *in, size_t inLen, unsigned char **out, size_t *outLen, EVP_PKEY *pkey);
+int symEncrypt(unsigned char *in, size_t inLen, unsigned char *key, unsigned char *out, size_t *outLen);
+int symDecrypt(unsigned char *in, size_t inLen, unsigned char *key, unsigned char *out, size_t *outLen);
 
 // in this namespace for now
 int genLogID(unsigned char *id);

@@ -175,7 +175,7 @@ err:
   @return      0 if successful, -1 otherwise
 
 */
-int createSignature(unsigned char *in, int inLen, unsigned char *out, EVP_PKEY *pkey) {
+int createSignature(unsigned char *in, size_t inLen, unsigned char *out, EVP_PKEY *pkey) {
 
 	size_t		sigLen;
 	unsigned char 	sig[sigLen];
@@ -238,7 +238,7 @@ err:
   @return      0 if successful, -1 otherwise
 
 */
-int verifySignature(unsigned char *in, int inLen, unsigned char *sig, EVP_PKEY *pkey) {
+int verifySignature(unsigned char *in, size_t inLen, unsigned char *sig, EVP_PKEY *pkey) {
 
 	size_t		sigLen;
 	EVP_MD_CTX 	*mdctx;
@@ -296,7 +296,7 @@ err:
   @return      0 if successful, -1 otherwise
 
 */
-int pkEncrypt(unsigned char *in, int inLen, unsigned char *out, EVP_PKEY *pkey) {
+int pkEncrypt(unsigned char *in, size_t inLen, unsigned char *out, EVP_PKEY *pkey) {
 	EVP_PKEY_CTX 	*ctx;
 	size_t 		outlen;
 	int		ret;
@@ -312,6 +312,7 @@ int pkEncrypt(unsigned char *in, int inLen, unsigned char *out, EVP_PKEY *pkey) 
 		ret = -1;
 		goto err;
 	}
+
 	if ( EVP_PKEY_encrypt(ctx, out, &outlen, in, inLen) != 1 ) {
 		ret = -1;
 		goto err;
@@ -330,20 +331,20 @@ err:
 
   Performs a public-key decryption of a message
 
-  @param in     Plaintext
-  @param inLen  Length of the plaintext
-  @param out    Decrypted output
-  @param pkey   Private key
+  @param in      Ciphertext
+  @param inLen   Length of the ciphertext
+  @param out     Pointer to decrypted output
+  @param outLen  Number of bytes written to out
+  @param pkey    Private key
 
   @return      0 if successful, -1 otherwise
 
 */
-int pkDecrypt(unsigned char *in, int inLen, unsigned char *out, EVP_PKEY *pkey) {
+int pkDecrypt(unsigned char *in, size_t inLen, unsigned char **out, size_t *outLen, EVP_PKEY *pkey) {
 
 	EVP_PKEY_CTX 	*ctx;
-	size_t 		outlen;
 	int		ret;
-	
+
 	ret = 0;
 	
 	if ( ! (ctx = EVP_PKEY_CTX_new(pkey, NULL)) ) {
@@ -355,11 +356,25 @@ int pkDecrypt(unsigned char *in, int inLen, unsigned char *out, EVP_PKEY *pkey) 
 		ret = -1;
 		goto err;
 	}
-
-	if ( EVP_PKEY_decrypt(ctx, out, &outlen, in, inLen) != 1 ) {
+	
+	// determine number of bytes needed to store decrypted message
+	if ( EVP_PKEY_decrypt(ctx, NULL, (size_t *) outLen, in, inLen) != 1 ) {
 		ret = -1;
 		goto err;
 	}
+
+	*out = (unsigned char *) malloc(sizeof(char) * (*outLen));
+	if (*out == NULL) {
+		ret -1;
+		goto err;
+	}	
+	
+	// send the decrypted bytes to the out buffer
+	if ( EVP_PKEY_decrypt(ctx, *out, outLen, in, inLen) != 1 ) {
+		ret = -1;
+		goto err;
+	}
+
 err:
 	ERR_print_errors_fp(fpErr);
 	
@@ -383,10 +398,10 @@ err:
   @return      0 if successful, -1 otherwise
 
 */
-int symEncrypt(unsigned char *in, int inLen, unsigned char *key, unsigned char *out, int *outLen) {
+int symEncrypt(unsigned char *in, size_t inLen, unsigned char *key, unsigned char *out, size_t *outLen) {
 
 	EVP_CIPHER_CTX *ctx;
-	int tmpLen;
+	size_t tmpLen;
 	int ret;
 	
 	ret = 0;
@@ -404,14 +419,14 @@ int symEncrypt(unsigned char *in, int inLen, unsigned char *key, unsigned char *
 	}
 
 	// encrypt message
-	if ( EVP_EncryptUpdate(ctx, out, &tmpLen, in, inLen) != 1 ) {
+	if ( EVP_EncryptUpdate(ctx, out, (int *) &tmpLen, in, inLen) != 1 ) {
 		ret = -1;
 		goto err;
 	}
 	*outLen = tmpLen;
 
 	// finalize encryption
-	if ( EVP_EncryptFinal_ex(ctx, out + tmpLen, &tmpLen) != 1) {
+	if ( EVP_EncryptFinal_ex(ctx, out + tmpLen, (int *) &tmpLen) != 1) {
 		ret = -1;
 		goto err;
 	}
