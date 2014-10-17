@@ -8,7 +8,7 @@
 
 */
 	
-// TODO: - Use malloc for all enryptions (and decryptions?)
+// TODO:
 //	 - Move genLogID and getCurrentTimeStamp to more log-related code?
 
 #include "cryptsuite.hpp"
@@ -27,7 +27,7 @@ namespace cryptsuite {
   @param keyPath The path to the public key file
   @param pkey    Address of pointer to the EVP_PKEY struct
 
-  @return        0 if successful, -1 otherwise
+  @return        1 if successful, 0 otherwise
 
 */
 int loadRSAPublicKey(const char *keyPath, EVP_PKEY **pkey) {
@@ -36,25 +36,25 @@ int loadRSAPublicKey(const char *keyPath, EVP_PKEY **pkey) {
 	RSA 		*rsaPub;
 	int		ret;
 
-	ret = 0;
+	ret = 1;
 
 	rsaPub = RSA_new();
 
 	if ( (fpub = fopen(keyPath, "r")) == NULL ) {
-		ret = -1;
+		ret = 0;
 		goto err;
 	}
 
 	// read public key formatted in X509 style
 	PEM_read_RSA_PUBKEY(fpub, &rsaPub, NULL, NULL);
 	if (rsaPub == NULL) {
-		ret = -1;
+		ret = 0;
 		goto err;
 	}
 
 	// allocate key for use in EVP functions
 	if ( ! EVP_PKEY_set1_RSA(*pkey, rsaPub) ) {
-		ret = -1;
+		ret = 0;
 		goto err;
 	}
 err:
@@ -80,7 +80,7 @@ err:
   @param keyPath  The path to the private key file
   @param pkey     Address of pointer to the EVP_PKEY struct
 
-  @return         0 if successful, -1 otherwise
+  @return         1 if successful, 0 otherwise
 
 */
 int loadRSAPrivateKey(const char *keyPath, EVP_PKEY **pkey) {
@@ -89,12 +89,12 @@ int loadRSAPrivateKey(const char *keyPath, EVP_PKEY **pkey) {
 	RSA 		*rsaPriv;
 	int		ret;
 
-	ret = 0;
+	ret = 1;
 
 	rsaPriv = RSA_new();
 
 	if ( (fpriv = fopen(keyPath, "r")) == NULL ) {
-		ret = -1;
+		ret = 0;
 		goto err;
 	}
 
@@ -102,13 +102,13 @@ int loadRSAPrivateKey(const char *keyPath, EVP_PKEY **pkey) {
 	PEM_read_RSAPrivateKey(fpriv, &rsaPriv, NULL, NULL);
 
 	if (rsaPriv == NULL) {
-		ret = -1;
+		ret = 0;
 		goto err;
 	}
 
 	// allocate key for use in EVP functions
 	if ( ! EVP_PKEY_set1_RSA(*pkey, rsaPriv) ) {
-		ret = -1;
+		ret = 0;
 		goto err;
 	}
 err:
@@ -132,7 +132,7 @@ err:
   @param certPath   The path to the certificate
   @param crt        Address of pointer to the X509 struct
 
-  @return           0 if successful, -1 otherwise
+  @return           1 if successful, 0 otherwise
 
 */
 int loadX509Cert(const char *certPath, X509 **crt) {
@@ -140,15 +140,15 @@ int loadX509Cert(const char *certPath, X509 **crt) {
 	FILE		*fpCrt;
 	int		ret;
 
-	ret = 0;
+	ret = 1;
 	
 	if( (fpCrt = fopen(certPath, "r")) == NULL ) {
-		ret = -1;
+		ret = 0;
 		goto err;
 	}
 
 	if ( (*crt = PEM_read_X509(fpCrt, NULL, NULL, NULL)) == NULL ) {
-		ret = -1;
+		ret = 0;
 		goto err;
 	}
 err:
@@ -172,7 +172,7 @@ err:
   @param out    Digital signature buffer
   @param pkey   Private key
 
-  @return      0 if successful, -1 otherwise
+  @return       1 if successful, 0 otherwise
 
 */
 int createSignature(unsigned char *in, size_t inLen, unsigned char *out, EVP_PKEY *pkey) {
@@ -184,29 +184,29 @@ int createSignature(unsigned char *in, size_t inLen, unsigned char *out, EVP_PKE
 	
 	sigLen = SIG_BYTES;
 	mdctx = NULL;
-	ret = 0;
+	ret = 1;
 
 	// create and initialize Message Digest Context
 	if ( ! (mdctx = EVP_MD_CTX_create()) ) {
-		ret = -1;
+		ret = 0;
 		goto err;
 	}
 
 	// initialize the signing operation
 	if ( EVP_DigestSignInit(mdctx, NULL, SIG_MD_ALGO, NULL, pkey) != 1 ) {
-		ret = -1;
+		ret = 0;
 		goto err;
 	}
 
 	// update the message
 	if ( EVP_DigestSignUpdate(mdctx, in, inLen) != 1 ) {
-		ret = -1;
+		ret = 0;
 		goto err;
 	}
 	
 	// obtain the signature
-	if ( EVP_DigestSignFinal(mdctx, sig, &sigLen) != 1 ){
-		ret = -1;
+	if ( EVP_DigestSignFinal(mdctx, sig, &sigLen) != 1 ) {
+		ret = 0;
 		goto err;
 	}
 
@@ -235,7 +235,7 @@ err:
   @param sig    Digital signature buffer
   @param pkey   Public key
 
-  @return      0 if successful, -1 otherwise
+  @return       1 if successful, 0 otherwise
 
 */
 int verifySignature(unsigned char *in, size_t inLen, unsigned char *sig, EVP_PKEY *pkey) {
@@ -246,29 +246,29 @@ int verifySignature(unsigned char *in, size_t inLen, unsigned char *sig, EVP_PKE
 	
 	sigLen = SIG_BYTES;
 	mdctx = NULL;
-	ret = 0;
+	ret = 1;
 
 	// create and initialize Message Digest Context
 	if ( ! (mdctx = EVP_MD_CTX_create()) ) {
-		ret = -1;
+		ret = 0;
 		goto err;
 	}
 
 	// initialize the verification operation
 	if ( EVP_DigestVerifyInit(mdctx, NULL, SIG_MD_ALGO, NULL, pkey) != 1 ) {
-		ret = -1;
+		ret = 0;
 		goto err;
 	}
 
 	// hash plain data into verification context mdctx
 	if ( EVP_DigestVerifyUpdate(mdctx, in, inLen) != 1 ) {
-		ret = -1;
+		ret = 0;
 		goto err;
 	}
 
 	// verify data using pkey against the bytes in sig buffer
 	if ( EVP_DigestVerifyFinal(mdctx, sig, sigLen) != 1 ) {
-		ret = -1;
+		ret = 0;
 		goto err;
 	}
 
@@ -293,40 +293,51 @@ err:
   @param out    Encrypted output
   @param pkey   Public key
 
-  @return      0 if successful, -1 otherwise
-
+  @return       Number of bytes encrypted into out, 0 otherwise
 */
-int pkEncrypt(unsigned char *in, size_t inLen, unsigned char *out, EVP_PKEY *pkey) {
+size_t pkEncrypt(unsigned char *in, size_t inLen, unsigned char **out, EVP_PKEY *pkey) {
 
 	EVP_PKEY_CTX 	*ctx;
-	size_t 		outlen;
-	int		ret;
+	size_t 		outLen;
+	int		outAllocated;
 	
-	ret = 0;
+	outLen = 0;
+	outAllocated = 0;
 	
 	if ( ! (ctx = EVP_PKEY_CTX_new(pkey, NULL)) ) {
-		ret = -1;
 		goto err;
 	}
 
 	if ( EVP_PKEY_encrypt_init(ctx) != 1) {
-		ret = -1;
 		goto err;
 	}
 
-	if ( EVP_PKEY_encrypt(ctx, out, &outlen, in, inLen) != 1 ) {
-		ret = -1;
+	if ( EVP_PKEY_encrypt(ctx, NULL, &outLen, in, inLen) != 1 ) {
 		goto err;
 	}
 
+	*out = new unsigned char[outLen];
+	if (*out == NULL) {
+		outLen = 0;
+		goto err;
+	}
+	outAllocated = 1;
+
+	if ( EVP_PKEY_encrypt(ctx, *out, &outLen, in, inLen) != 1 ) {
+		outLen = 0;
+		goto err;
+	}
 err:
 	ERR_print_errors_fp(fpErr);
 	
 	// clean up
+	if (outLen == 0 && outAllocated == 1)
+		delete *out;
+
 	if (ctx)
 		EVP_PKEY_CTX_free(ctx);
 	
-	return ret;
+	return outLen;
 }
 
 /**
@@ -338,55 +349,57 @@ err:
   @param in      Ciphertext
   @param inLen   Length of the ciphertext
   @param out     Pointer to decrypted output
-  @param outLen  Number of bytes written to out
   @param pkey    Private key
 
-  @return      0 if successful, -1 otherwise
+  @return        1 if successful, 0 otherwise
 
 */
-int pkDecrypt(unsigned char *in, size_t inLen, unsigned char **out, size_t *outLen, EVP_PKEY *pkey) {
+size_t pkDecrypt(unsigned char *in, size_t inLen, unsigned char **out, EVP_PKEY *pkey) {
 
 	EVP_PKEY_CTX 	*ctx;
-	int		ret;
+	size_t		outLen;
+	int		outAllocated;
 
-	ret = 0;
+	outLen = 0;
+	outAllocated = 0;
 	
 	if ( ! (ctx = EVP_PKEY_CTX_new(pkey, NULL)) ) {
-		ret = -1;
 		goto err;
 	}
 
 	if ( EVP_PKEY_decrypt_init(ctx) != 1) {
-		ret = -1;
 		goto err;
 	}
 	
 	// determine number of bytes needed to store decrypted message
-	if ( EVP_PKEY_decrypt(ctx, NULL, (size_t *) outLen, in, inLen) != 1 ) {
-		ret = -1;
+	if ( EVP_PKEY_decrypt(ctx, NULL, &outLen, in, inLen) != 1 ) {
 		goto err;
 	}
 
-	*out = (unsigned char *) malloc(sizeof(char) * (*outLen));
+	*out = new unsigned char[outLen];
 	if (*out == NULL) {
-		ret -1;
+		outLen = 0;
 		goto err;
 	}	
-	
+	outAllocated = 1;	
+
 	// send the decrypted bytes to the out buffer
-	if ( EVP_PKEY_decrypt(ctx, *out, outLen, in, inLen) != 1 ) {
-		ret = -1;
+	if ( EVP_PKEY_decrypt(ctx, *out, &outLen, in, inLen) != 1 ) {
+		outLen = 0;
 		goto err;
 	}
 
 err:
 	ERR_print_errors_fp(fpErr);
 
+	if (outLen == 0 && outAllocated == 1)
+		delete *out;
+
 	// clean up
 	if (ctx)
 		EVP_PKEY_CTX_free(ctx);
 	
-	return ret;
+	return outLen;
 }
 
 /**
@@ -401,53 +414,56 @@ err:
   @param inLen   Length of the plaintext
   @param key     Key (Refer to header file for recommended length)
   @param out     Encrypted buffer (size should be >= inLen + 1 block size)
-  @param outLen  Bytes written to encrypted buffer
 
-  @return      0 if successful, -1 otherwise
-
+  @return        Number of bytes encrypted into out, 0 otherwise
 */
-int symEncrypt(unsigned char *in, size_t inLen, unsigned char *key, unsigned char *out, size_t *outLen) {
+size_t symEncrypt(unsigned char *in, size_t inLen, unsigned char *key, unsigned char **out) {
 
 	EVP_CIPHER_CTX *ctx;
-	size_t tmpLen;
-	int ret;
+	int		tmpLen;
+	size_t 		outLen;
+	size_t 		maxLen;
 	
-	ret = 0;
+	outLen = 0;
+	maxLen = inLen + SYM_BLK_SIZE - 1;
+
+	*out = new unsigned char[maxLen];
 
 	// create and initalize context
 	if ( ! (ctx = EVP_CIPHER_CTX_new()) ){
-		ret = -1;
 		goto err;
 	}
 
 	// initialize encryption operation (not using an IV)	
 	if ( EVP_EncryptInit_ex(ctx, SYM_ALGO, NULL, key, NULL) != 1 ) {
-		ret = -1;
 		goto err;
 	}
 
 	// encrypt message
-	if ( EVP_EncryptUpdate(ctx, out, (int *) &tmpLen, in, inLen) != 1 ) {
-		ret = -1;
+	if ( EVP_EncryptUpdate(ctx, *out, &tmpLen, in, inLen) != 1 ) {
+		outLen = 0;
 		goto err;
 	}
-	*outLen = tmpLen;
+	outLen = (size_t) tmpLen;
 
 	// finalize encryption
-	if ( EVP_EncryptFinal_ex(ctx, out + tmpLen, (int *) &tmpLen) != 1 ) {
-		ret = -1;
+	if ( EVP_EncryptFinal_ex(ctx, *out + tmpLen, &tmpLen) != 1 ) {
+		outLen = 0;
 		goto err;
 	}
-	*outLen += tmpLen;
+	outLen += tmpLen;
 	
 err:
 	ERR_print_errors_fp(fpErr);
 
 	// clean up
+	if (outLen == 0)
+		delete *out;
+
 	if (ctx)
 		EVP_CIPHER_CTX_free(ctx);
 
-	return ret;
+	return outLen;
 }
 
 /**
@@ -462,53 +478,57 @@ err:
   @param inLen   Length of the plaintext
   @param key     Key (same key used in symEncrypt)
   @param out     Decrypted buffer
-  @param outLen  Bytes written to decrypted buffer
 
-  @return      0 if successful, -1 otherwise
+  @return        Number of bytes dencrypted into out, 0 otherwise
 
 */
-int symDecrypt(unsigned char *in, int inLen, unsigned char *key, unsigned char *out, int *outLen) {
+size_t symDecrypt(unsigned char *in, size_t inLen, unsigned char *key, unsigned char **out) {
 
 	EVP_CIPHER_CTX *ctx;
 	int tmpLen;
-	int ret;
-	
-	ret = 0;
+	size_t outLen;
+	size_t maxLen;
+
+	outLen = 0;
+	maxLen = inLen + SYM_BLK_SIZE;
+
+	*out = new unsigned char[maxLen];
 
 	// create and initalize context
 	if ( ! (ctx = EVP_CIPHER_CTX_new()) ){
-		ret = -1;
 		goto err;
 	}
 
 	// initialize decryption operation (not using an IV)	
 	if ( EVP_DecryptInit_ex(ctx, SYM_ALGO, NULL, key, NULL) != 1 ) {
-		ret = -1;
 		goto err;
 	}
 
 	// decrypt message
-	if ( EVP_DecryptUpdate(ctx, out, &tmpLen, in, inLen) != 1 ) {
-		ret = -1;
+	if ( EVP_DecryptUpdate(ctx, *out, &tmpLen, in, inLen) != 1 ) {
+		outLen = 0;
 		goto err;
 	}
-	*outLen = tmpLen;
+	outLen = tmpLen;
 
 	// finalize decryption
-	if ( EVP_DecryptFinal_ex(ctx, out + tmpLen, &tmpLen) != 1 ) {
-		ret = -1;
+	if ( EVP_DecryptFinal_ex(ctx, *out + tmpLen, &tmpLen) != 1 ) {
+		outLen = 0;
 		goto err;
 	}
-	*outLen += tmpLen;
+	outLen += tmpLen;
 	
 err:
 	ERR_print_errors_fp(fpErr);
 
 	// clean up
+	if (outLen == 0)
+		delete *out;
+
 	if (ctx)
 		EVP_CIPHER_CTX_free(ctx);
 	
-	return ret;
+	return outLen;
 }
 
 /**
@@ -520,7 +540,7 @@ err:
 
   @param id     string buffer for the ID
 
-  @return      0 if successful, -1 otherwise
+  @return       1 if successful, 0 otherwise
 
 */
 int genLogID(unsigned char *id) {
@@ -532,7 +552,7 @@ int genLogID(unsigned char *id) {
 
 	strftime((char *) id, LOG_ID_LEN , "%Y%m%d_%k%M_%S", tmp);
 
-	return 0;
+	return 1;
 }
 
 /**
