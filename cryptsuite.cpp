@@ -41,6 +41,7 @@ int loadRSAPublicKey(const char *keyPath, EVP_PKEY **pkey) {
 	rsaPub = RSA_new();
 
 	if ( (fpub = fopen(keyPath, "r")) == NULL ) {
+		fprintf(fpErr, "loadRSAPublicKey: '%s' does not exist\n", keyPath);
 		ret = 0;
 		goto err;
 	}
@@ -48,12 +49,14 @@ int loadRSAPublicKey(const char *keyPath, EVP_PKEY **pkey) {
 	// read public key formatted in X509 style
 	PEM_read_RSA_PUBKEY(fpub, &rsaPub, NULL, NULL);
 	if (rsaPub == NULL) {
+		fprintf(fpErr, "loadRSAPublicKey: Fail to read '%s'\n", keyPath);
 		ret = 0;
 		goto err;
 	}
 
 	// allocate key for use in EVP functions
 	if ( ! EVP_PKEY_set1_RSA(*pkey, rsaPub) ) {
+		fprintf(fpErr, "loadRSAPublicKey: Fail to set key in EVP_PKEY\n");
 		ret = 0;
 		goto err;
 	}
@@ -94,20 +97,22 @@ int loadRSAPrivateKey(const char *keyPath, EVP_PKEY **pkey) {
 	rsaPriv = RSA_new();
 
 	if ( (fpriv = fopen(keyPath, "r")) == NULL ) {
+		fprintf(fpErr, "loadRSAPrivateKey: '%s' does not exist\n", keyPath);
 		ret = 0;
 		goto err;
 	}
 
 	// read private key in traditional format
 	PEM_read_RSAPrivateKey(fpriv, &rsaPriv, NULL, NULL);
-
 	if (rsaPriv == NULL) {
+		fprintf(fpErr, "loadRSAPrivateKey: Fail to read '%s'\n", keyPath);
 		ret = 0;
 		goto err;
 	}
 
 	// allocate key for use in EVP functions
 	if ( ! EVP_PKEY_set1_RSA(*pkey, rsaPriv) ) {
+		fprintf(fpErr, "loadRSAPrivateKey: Fail to set key in EVP_PKEY\n");
 		ret = 0;
 		goto err;
 	}
@@ -143,11 +148,13 @@ int loadX509Cert(const char *certPath, X509 **crt) {
 	ret = 1;
 	
 	if( (fpCrt = fopen(certPath, "r")) == NULL ) {
+		fprintf(fpErr, "loadX509Cert: '%s' does not exist\n", certPath);
 		ret = 0;
 		goto err;
 	}
 
 	if ( (*crt = PEM_read_X509(fpCrt, NULL, NULL, NULL)) == NULL ) {
+		fprintf(fpErr, "loadX509Cert: Fail to read '%s'\n", certPath);
 		ret = 0;
 		goto err;
 	}
@@ -188,24 +195,28 @@ int createSignature(unsigned char *in, size_t inLen, unsigned char *out, EVP_PKE
 
 	// create and initialize Message Digest Context
 	if ( ! (mdctx = EVP_MD_CTX_create()) ) {
+		fprintf(fpErr, "createSignature: Cannot create MD context\n");
 		ret = 0;
 		goto err;
 	}
 
 	// initialize the signing operation
 	if ( EVP_DigestSignInit(mdctx, NULL, SIG_MD_ALGO, NULL, pkey) != 1 ) {
+		fprintf(fpErr, "createSignature: Cannot init signing operation\n");
 		ret = 0;
 		goto err;
 	}
 
 	// update the message
 	if ( EVP_DigestSignUpdate(mdctx, in, inLen) != 1 ) {
+		fprintf(fpErr, "createSignature: Cannot sign\n");
 		ret = 0;
 		goto err;
 	}
 	
 	// obtain the signature
 	if ( EVP_DigestSignFinal(mdctx, sig, &sigLen) != 1 ) {
+		fprintf(fpErr, "createSignature: Cannot complete signing\n");
 		ret = 0;
 		goto err;
 	}
@@ -250,24 +261,29 @@ int verifySignature(unsigned char *in, size_t inLen, unsigned char *sig, EVP_PKE
 
 	// create and initialize Message Digest Context
 	if ( ! (mdctx = EVP_MD_CTX_create()) ) {
+		fprintf(fpErr, "verifySignature: Cannot create MD context\n");
+		ret = 0;
 		ret = 0;
 		goto err;
 	}
 
 	// initialize the verification operation
 	if ( EVP_DigestVerifyInit(mdctx, NULL, SIG_MD_ALGO, NULL, pkey) != 1 ) {
+		fprintf(fpErr, "verifySignature: Cannot init verification operation\n");
 		ret = 0;
 		goto err;
 	}
 
 	// hash plain data into verification context mdctx
 	if ( EVP_DigestVerifyUpdate(mdctx, in, inLen) != 1 ) {
+		fprintf(fpErr, "verifySignature: Cannot verify\n");
 		ret = 0;
 		goto err;
 	}
 
 	// verify data using pkey against the bytes in sig buffer
 	if ( EVP_DigestVerifyFinal(mdctx, sig, sigLen) != 1 ) {
+		fprintf(fpErr, "verifySignature: Cannot complete verification\n");
 		ret = 0;
 		goto err;
 	}
@@ -304,26 +320,36 @@ size_t pkEncrypt(unsigned char *in, size_t inLen, unsigned char **out, EVP_PKEY 
 	outLen = 0;
 	outAllocated = 0;
 	
+	// create public key context
 	if ( ! (ctx = EVP_PKEY_CTX_new(pkey, NULL)) ) {
+		fprintf(fpErr, "pkEncrypt: Cannot create P_KEY context\n");
 		goto err;
 	}
 
+	// initialize context
 	if ( EVP_PKEY_encrypt_init(ctx) != 1) {
+		fprintf(fpErr, "pkEncrypt: Cannot initialize P_KEY context\n");
 		goto err;
 	}
 
+	// determine number of bytes to store encrypted message
 	if ( EVP_PKEY_encrypt(ctx, NULL, &outLen, in, inLen) != 1 ) {
+		fprintf(fpErr, "pkEncrypt: Cannot determine encrypted length\n");
 		goto err;
 	}
 
 	*out = new unsigned char[outLen];
 	if (*out == NULL) {
+		fprintf(fpErr, "pkEncrypt: Cannot allocate buffer\n");
 		outLen = 0;
 		goto err;
 	}
+	memset(*out, '\0', outLen);
 	outAllocated = 1;
 
+	// send encrypted bytes to the out buffer
 	if ( EVP_PKEY_encrypt(ctx, *out, &outLen, in, inLen) != 1 ) {
+		fprintf(fpErr, "pkEncrypt: Cannot encrypt\n");
 		outLen = 0;
 		goto err;
 	}
@@ -332,7 +358,7 @@ err:
 	
 	// clean up
 	if (outLen == 0 && outAllocated == 1)
-		delete *out;
+		delete[] *out;
 
 	if (ctx)
 		EVP_PKEY_CTX_free(ctx);
@@ -363,28 +389,36 @@ size_t pkDecrypt(unsigned char *in, size_t inLen, unsigned char **out, EVP_PKEY 
 	outLen = 0;
 	outAllocated = 0;
 	
+	// create public key context
 	if ( ! (ctx = EVP_PKEY_CTX_new(pkey, NULL)) ) {
+		fprintf(fpErr, "pkDecrypt: Cannot create P_KEY context\n");
 		goto err;
 	}
 
+	// initalize context
 	if ( EVP_PKEY_decrypt_init(ctx) != 1) {
+		fprintf(fpErr, "pkDecrypt: Cannot initialize P_KEY context\n");
 		goto err;
 	}
 	
 	// determine number of bytes needed to store decrypted message
 	if ( EVP_PKEY_decrypt(ctx, NULL, &outLen, in, inLen) != 1 ) {
+		fprintf(fpErr, "pkDecrypt: Cannot determine decrypted length\n");
 		goto err;
 	}
 
 	*out = new unsigned char[outLen];
 	if (*out == NULL) {
+		fprintf(fpErr, "pkDecrypt: Cannot allocate buffer\n");
 		outLen = 0;
 		goto err;
 	}	
+	memset(*out, '\0', outLen);
 	outAllocated = 1;	
 
 	// send the decrypted bytes to the out buffer
 	if ( EVP_PKEY_decrypt(ctx, *out, &outLen, in, inLen) != 1 ) {
+		fprintf(fpErr, "pkDecrypt: Cannot decrypt\n");
 		outLen = 0;
 		goto err;
 	}
@@ -393,7 +427,7 @@ err:
 	ERR_print_errors_fp(fpErr);
 
 	if (outLen == 0 && outAllocated == 1)
-		delete *out;
+		delete[] *out;
 
 	// clean up
 	if (ctx)
@@ -412,12 +446,12 @@ err:
 
   @param in      Plaintext
   @param inLen   Length of the plaintext
-  @param key     Key (Refer to header file for recommended length)
   @param out     Encrypted buffer (size should be >= inLen + 1 block size)
+  @param key     Key (Refer to header file for recommended length)
 
   @return        Number of bytes encrypted into out, 0 otherwise
 */
-size_t symEncrypt(unsigned char *in, size_t inLen, unsigned char *key, unsigned char **out) {
+size_t symEncrypt(unsigned char *in, size_t inLen, unsigned char **out, unsigned char *key) {
 
 	EVP_CIPHER_CTX *ctx;
 	int		tmpLen;
@@ -428,19 +462,23 @@ size_t symEncrypt(unsigned char *in, size_t inLen, unsigned char *key, unsigned 
 	maxLen = inLen + SYM_BLK_SIZE - 1;
 
 	*out = new unsigned char[maxLen];
+	memset(*out, '\0', maxLen);
 
 	// create and initalize context
 	if ( ! (ctx = EVP_CIPHER_CTX_new()) ){
+		fprintf(fpErr, "symEncrypt: Cannot create EVP_CIPHER context\n");
 		goto err;
 	}
 
 	// initialize encryption operation (not using an IV)	
 	if ( EVP_EncryptInit_ex(ctx, SYM_ALGO, NULL, key, NULL) != 1 ) {
+		fprintf(fpErr, "symEncrypt: Cannot init encryption\n");
 		goto err;
 	}
 
-	// encrypt message
+	// send encrypted bytes to out buffer
 	if ( EVP_EncryptUpdate(ctx, *out, &tmpLen, in, inLen) != 1 ) {
+		fprintf(fpErr, "symEncrypt: Cannot encrypt\n");
 		outLen = 0;
 		goto err;
 	}
@@ -448,6 +486,7 @@ size_t symEncrypt(unsigned char *in, size_t inLen, unsigned char *key, unsigned 
 
 	// finalize encryption
 	if ( EVP_EncryptFinal_ex(ctx, *out + tmpLen, &tmpLen) != 1 ) {
+		fprintf(fpErr, "symEncrypt: Cannot complete encryption\n");
 		outLen = 0;
 		goto err;
 	}
@@ -458,7 +497,7 @@ err:
 
 	// clean up
 	if (outLen == 0)
-		delete *out;
+		delete[] *out;
 
 	if (ctx)
 		EVP_CIPHER_CTX_free(ctx);
@@ -482,7 +521,7 @@ err:
   @return        Number of bytes dencrypted into out, 0 otherwise
 
 */
-size_t symDecrypt(unsigned char *in, size_t inLen, unsigned char *key, unsigned char **out) {
+size_t symDecrypt(unsigned char *in, size_t inLen, unsigned char **out, unsigned char *key) {
 
 	EVP_CIPHER_CTX *ctx;
 	int tmpLen;
@@ -493,19 +532,23 @@ size_t symDecrypt(unsigned char *in, size_t inLen, unsigned char *key, unsigned 
 	maxLen = inLen + SYM_BLK_SIZE;
 
 	*out = new unsigned char[maxLen];
+	memset(*out, '\0', maxLen);
 
 	// create and initalize context
 	if ( ! (ctx = EVP_CIPHER_CTX_new()) ){
+		fprintf(fpErr, "symDecrypt: Cannot create EVP_CIPHER context\n");
 		goto err;
 	}
 
 	// initialize decryption operation (not using an IV)	
 	if ( EVP_DecryptInit_ex(ctx, SYM_ALGO, NULL, key, NULL) != 1 ) {
+		fprintf(fpErr, "symDecrypt: Cannot init decryption\n");
 		goto err;
 	}
 
-	// decrypt message
+	// send decrypted bytes to out buffer
 	if ( EVP_DecryptUpdate(ctx, *out, &tmpLen, in, inLen) != 1 ) {
+		fprintf(fpErr, "symDecrypt: Cannot decrypt\n");
 		outLen = 0;
 		goto err;
 	}
@@ -513,6 +556,7 @@ size_t symDecrypt(unsigned char *in, size_t inLen, unsigned char *key, unsigned 
 
 	// finalize decryption
 	if ( EVP_DecryptFinal_ex(ctx, *out + tmpLen, &tmpLen) != 1 ) {
+		fprintf(fpErr, "symDecrypt: Cannot complete decryption\n");
 		outLen = 0;
 		goto err;
 	}
@@ -523,7 +567,7 @@ err:
 
 	// clean up
 	if (outLen == 0)
-		delete *out;
+		delete[] *out;
 
 	if (ctx)
 		EVP_CIPHER_CTX_free(ctx);
