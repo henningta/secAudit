@@ -4,8 +4,12 @@
 #include <vector>
 #include <string>
 #include <sstream>
-/* utils.hpp
- * useful fuctions for general use cases
+/**
+ * utils.hpp
+ *
+ * Useful fuctions for general use cases
+ *
+ * @author(s) Jackson Reed, Travis Henning
  */
 
 //Strings
@@ -17,9 +21,12 @@ std::vector<std::string> split(const std::string &s, char delim);
 std::vector<std::string> &split(const std::string &s, char delim, std::vector<std::string> &elems);
 
 /*
- * travis henning
  * numToString
  * Converts number to string and returns the value
+ *
+ * @param 		num 	the number to be converted to a string
+ * @return 		string
+ * @author(s) 	Travis Henning
  */
 template<typename T>
 std::string numToString(T num) {

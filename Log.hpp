@@ -1,6 +1,15 @@
 #ifndef __LOG_HPP__
 #define __LOG_HPP__
 
+/**
+ * Log.hpp
+ *
+ * Log object which stores (encrypted) entries made by the untrusted
+ * machine. Able to open, close, append itself.
+ *
+ * @author(s)	Travis Henning
+ */
+
 #include <fstream>
 #include <string>
 #include <vector>
