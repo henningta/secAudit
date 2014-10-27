@@ -6,10 +6,13 @@ SOURCES=main.cpp utils.cpp TrustedObject.cpp UntrustedObject.cpp \
 OBJECTS=$(SOURCES:.cpp=.o)
 EXECUTABLE=SecureAudit
 
-all: crypto $(SOURCES) $(EXECUTABLE)
+example: cryptsuite example.cpp
+	$(CC) -o example example.cpp cryptsuite.o -lssl -lcrypto
 
-crypto: 
-	$(CC) $(CFLAGS) $(LDFLAGS) cryptsuite.cpp
+cryptsuite: cryptsuite.cpp cryptsuite.hpp
+	$(CC) $(CFLAGS) cryptsuite.cpp
+
+all: $(SOURCES) $(EXECUTABLE)
 
 $(EXECUTABLE): $(OBJECTS) 
 	$(CC) $(LDFLAGS) $(OBJECTS) -o $@
