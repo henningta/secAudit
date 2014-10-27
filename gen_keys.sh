@@ -9,6 +9,8 @@
 #
 # N.B:  Public keys are in X.509 style and pivate keys are in
 #       the "traditional" or "SSLeay" format
+#
+# author(s)	Travis Henning, Timothy Thong
 
 
 # set the error flag if a command fails

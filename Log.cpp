@@ -1,8 +1,15 @@
 #include "Log.hpp"
-
 #include <iostream>
 
-// travis henning
+/**
+ * Log::open
+ *
+ * Opens file of specified name and adds an entry indicating the log has
+ * been created
+ *
+ * @return 	bool
+ * @author 	Travis Henning
+ */
 bool Log::open() {
 	_logFile.open(_logName.c_str(), std::ios::app);
 
@@ -19,7 +26,15 @@ bool Log::open() {
 	return true;
 }
 
-// travis henning
+/**
+ * Log::close
+ *
+ * Closes current log file and adds an entry indicating the log has been
+ * closed
+ *
+ * @return 	bool
+ * @author 	Travis Henning
+ */
 bool Log::close() {
 	if (!_logFile.is_open()) {
 		return false;
@@ -35,7 +50,15 @@ bool Log::close() {
 	return true;
 }
 
-// travis henning
+/**
+ * Log::append
+ *
+ * Appends string message to open log file
+ *
+ * @param 	message 	the entry message to be appended
+ * @return 	bool
+ * @author 	Travis Henning
+ */
 bool Log::append(const std::string & message) {
 	if (!_logFile.is_open()) {
 		return false;

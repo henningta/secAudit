@@ -1,6 +1,16 @@
 #ifndef __LOG_ENTRY_HPP__
 #define __LOG_ENTRY_HPP__
 
+/**
+ * LogEntry.hpp
+ *
+ * Entry object for log files. Contains information on entry type (open,
+ * close, append) as well as the entry message.
+ *
+ * @author(s) Travis Henning
+ *
+ */
+
 #include <string>
 
 enum EntryType {
