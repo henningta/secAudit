@@ -3,7 +3,6 @@
 
 TrustedObject::TrustedObject(EVP_PKEY PublicKey,EVP_PKEY PrivateKey){
   //TODO:
-
 }
 //This is temporary so the code compiles, Dont use this                 
 TrustedObject::TrustedObject(){

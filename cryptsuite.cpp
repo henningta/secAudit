@@ -13,6 +13,7 @@
 
 #include "cryptsuite.hpp"
 
+
 extern FILE *fpErr;
 
 namespace cryptsuite {

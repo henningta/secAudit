@@ -10,25 +10,33 @@ PayLoad::PayLoad(){
 }
 PayLoad::~PayLoad(){
   if(len>0)
-    delete payload;
+    free(payload);
 }
 
 ////////////////////////
-Message::Message(){
+Message::Message(std::string ID, MessageState state){
+  mP= state;
+  mID=ID;
 }
 
-Message::~Message(){
+Message::Message(){
+  //Not Used
+}
 
+
+
+Message::~Message(){
+  //Not used
 }
 
 MessageState 
 Message::get_p() {
-  return p;
+  return mP;
 }
                                              
 std::string 
 Message::get_ID(){
-  return ID;
+  return mID;
 }
  
 std::vector<unsigned char>  
@@ -62,21 +70,33 @@ Message::get_payload_size(std::string name){
 
 
 void 
-MessageMaker::set_encrypt(std::string name, size_t len ,unsigned char * unencrypted, EVP_PKEY key){
+MessageMaker::set_encrypt(std::string name, size_t leng ,unsigned char * unencrypted, EVP_PKEY *pkey){
+
+  PayLoad pay;
+  pay.len=cryptsuite::pkEncrypt( unencrypted, leng, &(pay.payload), pkey);
+}
+
+void 
+MessageMaker::set_sign(std::string name, size_t leng ,unsigned char * unencrypted, EVP_PKEY *pkey){
+
+  PayLoad pay;\
+  pay.payload=(unsigned char *)malloc(sizeof(unsigned char)*leng);
+  pay.len=(size_t)cryptsuite::createSignature( unencrypted , leng , pay.payload , pkey );
 
 }
 
 void 
-MessageMaker::set_sign(std::string name, size_t len ,unsigned char * unencrypted, EVP_PKEY key){
-
+MessageMaker::set(std::string name, size_t leng ,unsigned char * unencrypted){
+  PayLoad pay;
+  pay.payload=(unsigned char *)malloc(sizeof(unsigned char)*leng);
+  memcpy(pay.payload,unencrypted,leng);
+  pay.len=leng;
+  msg.payloads[name]=pay;
 }
-
-void 
-MessageMaker::set(std::string name, size_t len ,unsigned char * unencrypted, EVP_PKEY key){}
 
 void 
 MessageMaker::clear_payload(){
-
+  msg.payloads.clear();
 }                                                        
 
 Message 
@@ -84,10 +104,24 @@ MessageMaker::get_message(){
   return msg;
 }
 
-MessageMaker::MessageMaker(){
-
+MessageMaker::MessageMaker(std::string ID,MessageState state){
+  msg = Message(ID,state);  
 
 }
-MessageMaker::~MessageMaker(){
+MessageMaker::MessageMaker(){
+  msg=Message("UNINITIALIZED",MessageState::UNINITIALIZED);
+}
 
+void
+MessageMaker::set_ID(std::string ID){
+  msg.mID =ID;
+}
+
+void
+MessageMaker::set_MessageState(MessageState state){
+  msg.mP=state;
+}
+
+MessageMaker::~MessageMaker(){
+  //not used
 }
