@@ -1,3 +1,5 @@
+# authors Jackson Reed, Travis Henning, Timothy Thong
+
 CC=g++ -std=c++0x
 CFLAGS=-c -Wall 
 LDFLAGS= -lssl -lcrypto
@@ -23,4 +25,5 @@ $(EXECUTABLE): $(OBJECTS)
 clean:
 	rm *.o
 	rm SecureAudit
+	rm example
 
