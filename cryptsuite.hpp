@@ -51,7 +51,7 @@ namespace cryptsuite {
 int loadRSAPublicKey(const char *keyPath, EVP_PKEY **pkey);
 int loadRSAPrivateKey(const char *keyPath, EVP_PKEY **pkey);
 int loadX509Cert(const char *certPath, X509 **cert);
-int createSignature(unsigned char *in, size_t inLen, unsigned char *out, EVP_PKEY *pkey);
+int createSignature(unsigned char *in, size_t inLen, unsigned char **sig, EVP_PKEY *pkey);
 int verifySignature(unsigned char *in, size_t inLen, unsigned char *sig, EVP_PKEY *pkey);
 size_t pkEncrypt(unsigned char *in, size_t inLen, unsigned char **out, EVP_PKEY *pkey);
 size_t pkDecrypt(unsigned char *in, size_t inLen, unsigned char **out, EVP_PKEY *pkey);

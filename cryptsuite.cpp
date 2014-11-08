@@ -183,16 +183,26 @@ err:
   @return       1 if successful, 0 otherwise
 
 */
-int createSignature(unsigned char *in, size_t inLen, unsigned char *out, EVP_PKEY *pkey) {
+int createSignature(unsigned char *in, size_t inLen, unsigned char **sig, EVP_PKEY *pkey) {
 
 	size_t		sigLen;
-	unsigned char 	sig[sigLen];
 	EVP_MD_CTX 	*mdctx;
+	int		bufAllocated;
 	int 		ret;
 	
 	sigLen = SIG_BYTES;
 	mdctx = NULL;
+	bufAllocated = 0;
 	ret = 1;
+
+	*sig = new unsigned char[SIG_BYTES];
+	if (*sig == NULL) {
+		fprintf(fpErr, "createSignature: Cannot allocate buffer\n");
+		ret = 0;
+		goto err;
+	}
+	memset(*sig, '\0', sigLen);
+	bufAllocated = 1;
 
 	// create and initialize Message Digest Context
 	if ( ! (mdctx = EVP_MD_CTX_create()) ) {
@@ -216,14 +226,11 @@ int createSignature(unsigned char *in, size_t inLen, unsigned char *out, EVP_PKE
 	}
 	
 	// obtain the signature
-	if ( EVP_DigestSignFinal(mdctx, sig, &sigLen) != 1 ) {
+	if ( EVP_DigestSignFinal(mdctx, *sig, &sigLen) != 1 ) {
 		fprintf(fpErr, "createSignature: Cannot complete signing\n");
 		ret = 0;
 		goto err;
 	}
-
-	// copy signature to buffer for verification
-	memcpy(out, sig, SIG_BYTES);
 
 err:	
 	ERR_print_errors_fp(fpErr);
@@ -231,6 +238,11 @@ err:
 	// clean up
 	if (mdctx)
 		EVP_MD_CTX_destroy(mdctx);
+
+	if (ret == 0 && bufAllocated == 1) {
+		delete[] *sig;
+		*sig = NULL;
+	}
 
 	return ret;
 }
