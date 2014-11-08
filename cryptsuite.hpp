@@ -20,6 +20,12 @@
 #define UNTRUSTED_PUB		"keys/untrusted.pub"
 #define UNTRUSTED_CERT  	"keys/untrusted.cert"
 
+// message digest algorithm for hashing. MD_BYTES
+// is tied to the algorithm used. Changes made to
+// MD_ALGO must also be made to MD_BYTES
+#define MD_ALGO			EVP_sha256()
+#define MD_BYTES		32
+
 // chosen message digest algorithm and length (2048-bit key)
 // algorithm can be changed, but SIG_BYTES must remain 
 // the same because of our 2048-bit key
@@ -57,6 +63,7 @@ size_t pkEncrypt(unsigned char *in, size_t inLen, unsigned char **out, EVP_PKEY 
 size_t pkDecrypt(unsigned char *in, size_t inLen, unsigned char **out, EVP_PKEY *pkey);
 size_t symEncrypt(unsigned char *in, size_t inLen, unsigned char **out, unsigned char *key);
 size_t symDecrypt(unsigned char *in, size_t inLen, unsigned char **out, unsigned char *key);
+int calcMD(unsigned char *in, size_t inLen, unsigned char **out);
 
 // in this namespace for now
 int genLogID(unsigned char *id);

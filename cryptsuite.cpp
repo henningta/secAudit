@@ -594,6 +594,72 @@ err:
 
 /**
 
+  calcMD 
+
+  Calculates a message digest sepecified by MD_ALGO.
+  Length of digest output is specified by MD_BYTES.
+  
+  @param in      input
+  @param inLen   length of input
+  @param out     pointer to message digest buffer
+
+  @return        1 for success, 0 otherwise
+
+*/
+int calcMD(unsigned char *in, size_t inLen, unsigned char **out)
+{
+	EVP_MD_CTX *mdctx;
+	int ret;
+	unsigned int outLen;
+	
+	ret = 1;
+	*out = new unsigned char[MD_BYTES];
+	if (*out == NULL) { 
+		fprintf(fpErr,"Error: Cannot allocate buffer\n");
+		ret = 0;
+		goto err;
+	}
+	memset(*out, '\0', MD_BYTES);
+
+	if ( ( mdctx = EVP_MD_CTX_create() ) == NULL) {
+		fprintf(fpErr, "Error: Cannot create EVP_MD context\n");
+		ret = 0;
+		goto err;
+	}
+
+	if ( EVP_DigestInit_ex(mdctx, MD_ALGO, NULL) != 1 ) {
+		fprintf(fpErr, "Error: Cannot init EVP_MD context\n");
+		ret = 0;
+		goto err;
+	}
+
+	if ( EVP_DigestUpdate(mdctx, in, inLen) != 1) {
+		fprintf(fpErr, "Error: Cannot update message digest\n");
+		ret = 0;
+		goto err;
+	}
+
+	if ( EVP_DigestFinal_ex(mdctx, *out, &outLen) != 1 ) {
+		fprintf(fpErr, "Error: Cannot finalize message digest\n");
+		ret = 0;
+		goto err;
+	}
+
+err:
+	ERR_print_errors_fp(fpErr);
+
+	// clean up
+	if (mdctx)
+		EVP_MD_CTX_destroy(mdctx);
+
+	if (ret == 0 && *out != NULL)
+		delete[] *out;
+
+	return ret;
+}
+
+/**
+
   genLogID
 
   Generates a new log ID based on the date and time
