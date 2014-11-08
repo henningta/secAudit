@@ -1,20 +1,24 @@
 /**
   cryptsuite.cpp
-  
+
   Functions related to signing/verification, encryption/decryption
   and certificates.
 
   @author(s) Timothy Thong
 
 */
-	
+
 // TODO:
 //	 - Move genLogID and getCurrentTimeStamp to more log-related code?
 
 #include "cryptsuite.hpp"
 
-
-extern FILE *fpErr;
+#define REDIRECT_ERR // comment-out this line to use external file
+#ifdef REDIRECT_ERR
+	FILE *fpErr = stdout;
+#else
+	extern FILE *fpErr;
+#endif
 
 namespace cryptsuite {
 
@@ -142,12 +146,12 @@ err:
 
 */
 int loadX509Cert(const char *certPath, X509 **crt) {
-	
+
 	FILE		*fpCrt;
 	int		ret;
 
 	ret = 1;
-	
+
 	if( (fpCrt = fopen(certPath, "r")) == NULL ) {
 		fprintf(fpErr, "loadX509Cert: '%s' does not exist\n", certPath);
 		ret = 0;
@@ -189,7 +193,7 @@ int createSignature(unsigned char *in, size_t inLen, unsigned char **sig, EVP_PK
 	EVP_MD_CTX 	*mdctx;
 	int		bufAllocated;
 	int 		ret;
-	
+
 	sigLen = SIG_BYTES;
 	mdctx = NULL;
 	bufAllocated = 0;
@@ -224,7 +228,7 @@ int createSignature(unsigned char *in, size_t inLen, unsigned char **sig, EVP_PK
 		ret = 0;
 		goto err;
 	}
-	
+
 	// obtain the signature
 	if ( EVP_DigestSignFinal(mdctx, *sig, &sigLen) != 1 ) {
 		fprintf(fpErr, "createSignature: Cannot complete signing\n");
@@ -232,7 +236,7 @@ int createSignature(unsigned char *in, size_t inLen, unsigned char **sig, EVP_PK
 		goto err;
 	}
 
-err:	
+err:
 	ERR_print_errors_fp(fpErr);
 
 	// clean up
@@ -267,7 +271,7 @@ int verifySignature(unsigned char *in, size_t inLen, unsigned char *sig, EVP_PKE
 	size_t		sigLen;
 	EVP_MD_CTX 	*mdctx;
 	int 		ret;
-	
+
 	sigLen = SIG_BYTES;
 	mdctx = NULL;
 	ret = 1;
@@ -329,10 +333,10 @@ size_t pkEncrypt(unsigned char *in, size_t inLen, unsigned char **out, EVP_PKEY 
 	EVP_PKEY_CTX 	*ctx;
 	size_t 		outLen;
 	int		outAllocated;
-	
+
 	outLen = 0;
 	outAllocated = 0;
-	
+
 	// create public key context
 	if ( ! (ctx = EVP_PKEY_CTX_new(pkey, NULL)) ) {
 		fprintf(fpErr, "pkEncrypt: Cannot create P_KEY context\n");
@@ -368,14 +372,14 @@ size_t pkEncrypt(unsigned char *in, size_t inLen, unsigned char **out, EVP_PKEY 
 	}
 err:
 	ERR_print_errors_fp(fpErr);
-	
+
 	// clean up
 	if (outLen == 0 && outAllocated == 1)
 		delete[] *out;
 
 	if (ctx)
 		EVP_PKEY_CTX_free(ctx);
-	
+
 	return outLen;
 }
 
@@ -401,7 +405,7 @@ size_t pkDecrypt(unsigned char *in, size_t inLen, unsigned char **out, EVP_PKEY 
 
 	outLen = 0;
 	outAllocated = 0;
-	
+
 	// create public key context
 	if ( ! (ctx = EVP_PKEY_CTX_new(pkey, NULL)) ) {
 		fprintf(fpErr, "pkDecrypt: Cannot create P_KEY context\n");
@@ -413,7 +417,7 @@ size_t pkDecrypt(unsigned char *in, size_t inLen, unsigned char **out, EVP_PKEY 
 		fprintf(fpErr, "pkDecrypt: Cannot initialize P_KEY context\n");
 		goto err;
 	}
-	
+
 	// determine number of bytes needed to store decrypted message
 	if ( EVP_PKEY_decrypt(ctx, NULL, &outLen, in, inLen) != 1 ) {
 		fprintf(fpErr, "pkDecrypt: Cannot determine decrypted length\n");
@@ -425,9 +429,9 @@ size_t pkDecrypt(unsigned char *in, size_t inLen, unsigned char **out, EVP_PKEY 
 		fprintf(fpErr, "pkDecrypt: Cannot allocate buffer\n");
 		outLen = 0;
 		goto err;
-	}	
+	}
 	memset(*out, '\0', outLen);
-	outAllocated = 1;	
+	outAllocated = 1;
 
 	// send the decrypted bytes to the out buffer
 	if ( EVP_PKEY_decrypt(ctx, *out, &outLen, in, inLen) != 1 ) {
@@ -445,7 +449,7 @@ err:
 	// clean up
 	if (ctx)
 		EVP_PKEY_CTX_free(ctx);
-	
+
 	return outLen;
 }
 
@@ -453,7 +457,7 @@ err:
 
   symEncrypt
 
-  Performs a symmetric encryption of a message. The 
+  Performs a symmetric encryption of a message. The
   cipher, mode and key length used are specified in
   the header file and can be changed accordingly
 
@@ -470,7 +474,7 @@ size_t symEncrypt(unsigned char *in, size_t inLen, unsigned char **out, unsigned
 	int		tmpLen;
 	size_t 		outLen;
 	size_t 		maxLen;
-	
+
 	outLen = 0;
 	maxLen = inLen + SYM_BLK_SIZE - 1;
 
@@ -483,7 +487,7 @@ size_t symEncrypt(unsigned char *in, size_t inLen, unsigned char **out, unsigned
 		goto err;
 	}
 
-	// initialize encryption operation (not using an IV)	
+	// initialize encryption operation (not using an IV)
 	if ( EVP_EncryptInit_ex(ctx, SYM_ALGO, NULL, key, NULL) != 1 ) {
 		fprintf(fpErr, "symEncrypt: Cannot init encryption\n");
 		goto err;
@@ -504,7 +508,7 @@ size_t symEncrypt(unsigned char *in, size_t inLen, unsigned char **out, unsigned
 		goto err;
 	}
 	outLen += tmpLen;
-	
+
 err:
 	ERR_print_errors_fp(fpErr);
 
@@ -522,7 +526,7 @@ err:
 
   symDecrypt
 
-  Performs a symmetric decryption of a message. The 
+  Performs a symmetric decryption of a message. The
   cipher, mode and key length used are specified in
   the header file and can be changed accordingly
 
@@ -553,7 +557,7 @@ size_t symDecrypt(unsigned char *in, size_t inLen, unsigned char **out, unsigned
 		goto err;
 	}
 
-	// initialize decryption operation (not using an IV)	
+	// initialize decryption operation (not using an IV)
 	if ( EVP_DecryptInit_ex(ctx, SYM_ALGO, NULL, key, NULL) != 1 ) {
 		fprintf(fpErr, "symDecrypt: Cannot init decryption\n");
 		goto err;
@@ -574,7 +578,7 @@ size_t symDecrypt(unsigned char *in, size_t inLen, unsigned char **out, unsigned
 		goto err;
 	}
 	outLen += tmpLen;
-	
+
 err:
 	ERR_print_errors_fp(fpErr);
 
@@ -584,13 +588,13 @@ err:
 
 	if (ctx)
 		EVP_CIPHER_CTX_free(ctx);
-	
+
 	return outLen;
 }
 
 /**
 
-  genLogID 
+  genLogID
 
   Generates a new log ID based on the date and time
   in the following format: YYYYMMDD_HHMM_SS
@@ -626,7 +630,7 @@ long int getCurrentTimeStamp(void) {
 	struct 		timeval tv;
 
   	gettimeofday(&tv, NULL);
-	
+
 	return tv.tv_sec;
 }
 

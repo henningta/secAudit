@@ -1,8 +1,8 @@
-#include "message.hpp"
+#include "Message.hpp"
 #include <string.h>
 #include <stdexcept>
-//message.cpp
-//Jackson Reed                                                            
+//Message.cpp
+//Jackson Reed
 
 ////////////////////////////
 PayLoad::PayLoad(){
@@ -29,23 +29,23 @@ Message::~Message(){
   //Not used
 }
 
-MessageState 
+MessageState
 Message::get_p() {
   return mP;
 }
-                                             
-std::string 
+
+std::string
 Message::get_ID(){
   return mID;
 }
- 
-std::vector<unsigned char>  
+
+std::vector<unsigned char>
 Message::get_payload(std::string name){
 
   std::map<std::string, PayLoad>::iterator it = payloads.find(name);
 
   if(it == payloads.end()){
-    throw std::invalid_argument(name);  
+    throw std::invalid_argument(name);
   }
 
   size_t leng=it->second.len;
@@ -69,23 +69,23 @@ Message::get_payload_size(std::string name){
 ////////////////////////
 
 
-void 
+void
 MessageMaker::set_encrypt(std::string name, size_t leng ,unsigned char * unencrypted, EVP_PKEY *pkey){
 
   PayLoad pay;
   pay.len=cryptsuite::pkEncrypt( unencrypted, leng, &(pay.payload), pkey);
 }
 
-void 
+void
 MessageMaker::set_sign(std::string name, size_t leng ,unsigned char * unencrypted, EVP_PKEY *pkey){
 
-  PayLoad pay;\
+  PayLoad pay;
   pay.payload=(unsigned char *)malloc(sizeof(unsigned char)*leng);
-  pay.len=(size_t)cryptsuite::createSignature( unencrypted , leng , pay.payload , pkey );
+  pay.len=(size_t)cryptsuite::createSignature( unencrypted , leng , &pay.payload , pkey );
 
 }
 
-void 
+void
 MessageMaker::set(std::string name, size_t leng ,unsigned char * unencrypted){
   PayLoad pay;
   pay.payload=(unsigned char *)malloc(sizeof(unsigned char)*leng);
@@ -94,18 +94,18 @@ MessageMaker::set(std::string name, size_t leng ,unsigned char * unencrypted){
   msg.payloads[name]=pay;
 }
 
-void 
+void
 MessageMaker::clear_payload(){
   msg.payloads.clear();
-}                                                        
+}
 
-Message 
+Message
 MessageMaker::get_message(){
   return msg;
 }
 
 MessageMaker::MessageMaker(std::string ID,MessageState state){
-  msg = Message(ID,state);  
+  msg = Message(ID,state);
 
 }
 MessageMaker::MessageMaker(){

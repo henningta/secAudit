@@ -1,11 +1,11 @@
 #ifndef __MESSAGE_HPP__
 #define __MESSAGE_HPP__
 
-#include<map>
-#include<string>
+#include <map>
+#include <string>
 #include <memory>
 #include <vector>
-#include"cryptsuite.hpp"
+#include "cryptsuite.hpp"
 //Jackson Reed
 
 
@@ -25,7 +25,7 @@ private:
   std::map<std::string, PayLoad> payloads;
 
 public:
-  MessageState get_p();                                           
+  MessageState get_p();
   Message(std::string ID, MessageState state);
   Message();
   std::string get_ID();
@@ -49,12 +49,12 @@ public:
   MessageMaker(std::string ID, MessageState state);
   MessageMaker();
   ~MessageMaker();
-  
+
 private:
   Message msg;
 };
 
-  
+
 class PayLoad{
   friend class MessageMaker;
   friend class Message;

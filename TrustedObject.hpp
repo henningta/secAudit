@@ -11,9 +11,8 @@
  */
 
 #include <string>
-#include "message.hpp"
+#include "Message.hpp"
 #include "cryptsuite.hpp"
-
 
 class TrustedObject {
 private:
@@ -35,7 +34,6 @@ public:
 
 private:
   MessageMaker mkr;
-  
 };
 
 #endif // __TRUSTED_OBJECT_HPP__
