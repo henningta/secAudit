@@ -80,9 +80,12 @@ int verifySignature(unsigned char *in, size_t inLen, unsigned char *sig, EVP_PKE
 size_t symEncrypt(unsigned char *in, size_t inLen, unsigned char **out, unsigned char *key);
 size_t symDecrypt(unsigned char *in, size_t inLen, unsigned char **out, unsigned char *key);
 
-// Hash and MAC functions
+// hash and MAC functions
 int calcMD(unsigned char *in, size_t inLen, unsigned char **out);
 int calcHMAC(unsigned char *in, size_t inLen, unsigned char **out, unsigned char *key, size_t keyLen);
+
+// utilities
+int genRandBytes(unsigned char *in, size_t len);
 
 // in this namespace for now
 int genLogID(unsigned char *id);

@@ -780,6 +780,26 @@ err:
 
 /**
 
+  genRandBytes
+
+  Generates random bytes up to a specified length
+
+  @param id     random byte buffer
+  @param len	number of random bytes to generate
+  @return       1 if successful, 0 otherwise
+
+*/
+int genRandBytes(unsigned char *in, size_t len) {
+ 
+	if ( ! RAND_bytes(in, len) ) {
+ 		fprintf(fpErr, "Error: Failed to generate random bytes\n");
+		 return 0;
+ 	}
+	return 1;
+}
+
+/**
+
   genLogID
 
   Generates a new log ID based on the date and time
