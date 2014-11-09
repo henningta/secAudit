@@ -11,19 +11,27 @@
  */
 
 #include "Log.hpp"
+#include "Message.hpp"
+#include "cryptsuite.hpp"
+
 
 class UntrustedObject {
 private:
-	Log _log;
-public:
-	void generateInitMessage(); 	// TODO
-	void verifyInitResponse(); 		// TODO
-	bool createLog(const std::string & logName);
-	bool addEntry(const std::string & message);
-	bool closeLog();
+  Log _log;
+  MessageMaker msgFact;
+  EVP_PKEY *pub;
+  EVP_PKEY *priv;
+  EVP_PKEY *trustPub;
 
-	inline const std::string & getLogName() { return _log.getName(); }
-	inline int getNumEntries() { return _log.getNumEntries(); }
+public:
+
+  UntrustedObject();
+  Message createLog(const std::string & logName);
+  Message addEntry(const std::string & message);
+  Message closeLog();
+  
+  inline const std::string & getLogName() { return _log.getName(); }
+  inline int getNumEntries() { return _log.getNumEntries(); }
 };
 
 #endif // __UNTRUSTED_OBJECT_HPP__

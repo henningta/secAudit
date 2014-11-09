@@ -10,7 +10,7 @@ PayLoad::PayLoad(){
 }
 PayLoad::~PayLoad(){
   if(len>0)
-    free(payload);
+    delete(payload);
 }
 
 ////////////////////////
@@ -74,21 +74,25 @@ MessageMaker::set_encrypt(std::string name, size_t leng ,unsigned char * unencry
 
   PayLoad pay;
   pay.len=cryptsuite::pkEncrypt( unencrypted, leng, &(pay.payload), pkey);
+  msg.payloads[name]=pay;
 }
+
+
 
 void
 MessageMaker::set_sign(std::string name, size_t leng ,unsigned char * unencrypted, EVP_PKEY *pkey){
 
   PayLoad pay;
-  pay.payload=(unsigned char *)malloc(sizeof(unsigned char)*leng);
+  //pay.payload=(unsigned char *)malloc(sizeof(unsigned char)*leng);
   pay.len=(size_t)cryptsuite::createSignature( unencrypted , leng , &pay.payload , pkey );
+  msg.payloads[name]=pay;
 
 }
 
 void
 MessageMaker::set(std::string name, size_t leng ,unsigned char * unencrypted){
   PayLoad pay;
-  pay.payload=(unsigned char *)malloc(sizeof(unsigned char)*leng);
+  pay.payload=(unsigned char *)new char[leng+1];
   memcpy(pay.payload,unencrypted,leng);
   pay.len=leng;
   msg.payloads[name]=pay;

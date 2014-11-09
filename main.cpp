@@ -21,7 +21,7 @@ void do_command(
 		UntrustedObject & untrustedObject,
 		TrustedObject & trustedObject,
 		VerificationObject & verificationObject) {
-  
+ 
   std::size_t pos;
   if((pos=cmd.find("createlog")) != std::string::npos){
     std::vector<std::string> cmdTokens = split(cmd, ' ');
@@ -29,18 +29,20 @@ void do_command(
       if(cmdTokens[0].find("-") == std::string::npos){
 	std::cout << help;
       } else {
-	if (untrustedObject.createLog(cmdTokens[1])) {
+	untrustedObject.createLog(cmdTokens[1]);
 	  std::cout << "Created " << cmdTokens[2] << "\n";
-	} else {
-	  std::cout << "Log creation failed.\n";
-	}
+	//TODO: try catch
+	//} else {
+	//std::cout << "Log creation failed.\n";
+	  //}
       }
     } else if(cmdTokens.size()==2) {
-      if (untrustedObject.createLog(cmdTokens[1])) {
+      untrustedObject.createLog(cmdTokens[1]);
 	std::cout << "Created " << cmdTokens[1] << "\n";
-      } else {
-	std::cout << "Log creation failed.\n";
-      }
+      //} else {
+      //TODO: try catch
+      //std::cout << "Log creation failed.\n";
+	//}
     } else {
       std::cout << help;
     }
@@ -50,31 +52,34 @@ void do_command(
       if(cmdTokens[0].find("-") == std::string::npos){
 	std::cout << help;
       } else {
-	if (untrustedObject.addEntry(cmdTokens[2])) {
+	untrustedObject.addEntry(cmdTokens[2]);
 	  std::cout << "Added log entry number "
 	    + numToString(untrustedObject.getNumEntries())
 	    + "\n";
-	} else {
-	  std::cout << "Add entry failed.\n";
-	}
+	  //TODO: TRY catch
+	  //} else {
+	  //std::cout << "Add entry failed.\n";
+	  //}
       }
     } else if(cmdTokens.size() == 2) {
-      if (untrustedObject.addEntry(cmdTokens[1])) {
+      untrustedObject.addEntry(cmdTokens[1]);
 	std::cout << "Added log entry number "
 	  + numToString(untrustedObject.getNumEntries())
 	  + "\n";
-      } else {
-	std::cout << "Add entry failed.\n";
-      }
+	//} else {
+	//TODO:try catch
+	//std::cout << "Add entry failed.\n";
+	//}
     } else {
       std::cout << help;
     }
   } else if ((pos=cmd.find("closelog")) != std::string::npos) {
-    if (untrustedObject.closeLog()) {
+    untrustedObject.closeLog();
       std::cout << "Closed " + untrustedObject.getLogName() + "\n";
-    } else {
-      std::cout << "Log already closed.\n";
-    }
+      //} else {
+      //TODO:try catch
+      //std::cout << "Log already closed.\n";
+      //}
   } else if ((pos=cmd.find("verify")) != std::string::npos) {
     std::vector<std::string> cmdTokens = split(cmd, ' ');
     std::cout << "verify :" << cmdTokens[2] << "\n";

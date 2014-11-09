@@ -37,9 +37,12 @@ public:
 
 class MessageMaker{
 public:
-
+  //public key
   void set_encrypt(std::string name, size_t leng ,unsigned char * unencrypted, EVP_PKEY * pkey);
+
   void set_sign(std::string name, size_t leng ,unsigned char * unencrypted, EVP_PKEY * pkey);
+  
+  
   void set(std::string name, size_t leng ,unsigned char * unencrypted);
   void set_ID(std::string);
   void set_MessageState(MessageState);
