@@ -175,6 +175,61 @@ err:
 
 /**
 
+  x509ToDer
+
+  Encodes a PEM certificate into DER format
+
+  @param crt	X509 cert
+  @param dst 	buffer
+
+  @return       length of bytes written to buffer
+
+*/
+size_t x509ToDer(X509 *crt, unsigned char **dst) {
+        int len;
+        unsigned char *buf;
+        
+        len = i2d_X509(crt, NULL);
+        buf = new unsigned char[len];
+        
+        if (buf == NULL)
+                fprintf(fpErr, "Error: Could not convert to DER cert\n");
+
+        *dst = buf;
+        i2d_X509(crt, dst);
+
+        return len;
+}
+
+/**
+
+  derToX509 
+
+  Re-encode a DER formatted certificate into PEM format
+
+  @param der		DER formatted cert
+  @param derLen 	length of the cert
+
+  @return       	PEM formatted cert, NULL otherwise
+
+*/
+X509* derToX509(unsigned char *der, size_t derLen) {
+
+        unsigned char *p;
+        X509 *decoded;
+
+        p = der;
+        decoded = NULL;
+        decoded = d2i_X509(NULL, (const unsigned char **) &p, derLen);
+
+        if (decoded == NULL)
+                printf("Error: Could not convert to X509 cert\n");
+
+        return decoded;
+}
+
+/**
+
   createSignature
 
   Outputs a signed message digest from a message

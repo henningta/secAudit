@@ -61,15 +61,26 @@
 
 namespace cryptsuite {
 
+// public key functions
 int loadRSAPublicKey(const char *keyPath, EVP_PKEY **pkey);
 int loadRSAPrivateKey(const char *keyPath, EVP_PKEY **pkey);
-int loadX509Cert(const char *certPath, X509 **cert);
-int createSignature(unsigned char *in, size_t inLen, unsigned char **sig, EVP_PKEY *pkey);
-int verifySignature(unsigned char *in, size_t inLen, unsigned char *sig, EVP_PKEY *pkey);
 size_t pkEncrypt(unsigned char *in, size_t inLen, unsigned char **out, EVP_PKEY *pkey);
 size_t pkDecrypt(unsigned char *in, size_t inLen, unsigned char **out, EVP_PKEY *pkey);
+
+// X509 certificate functions
+int loadX509Cert(const char *certPath, X509 **cert);
+size_t x509ToDer(X509 *crt, unsigned char **dst);
+X509* derToX509(unsigned char *der, size_t derLen);
+
+// signature functions
+int createSignature(unsigned char *in, size_t inLen, unsigned char **sig, EVP_PKEY *pkey);
+int verifySignature(unsigned char *in, size_t inLen, unsigned char *sig, EVP_PKEY *pkey);
+
+// symmetric encryption functions
 size_t symEncrypt(unsigned char *in, size_t inLen, unsigned char **out, unsigned char *key);
 size_t symDecrypt(unsigned char *in, size_t inLen, unsigned char **out, unsigned char *key);
+
+// Hash and MAC functions
 int calcMD(unsigned char *in, size_t inLen, unsigned char **out);
 int calcHMAC(unsigned char *in, size_t inLen, unsigned char **out, unsigned char *key, size_t keyLen);
 
