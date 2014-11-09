@@ -7,6 +7,7 @@
 #include <openssl/pem.h>
 #include <openssl/rand.h>
 #include <openssl/err.h>
+#include <openssl/hmac.h>
 #include <sys/time.h>
 
 // ID strings of servers
@@ -26,6 +27,12 @@
 #define MD_ALGO			EVP_sha256()
 #define MD_BYTES		32
 
+// HMAC constants
+// only EVP_sha1 and EVP_ripemd160 are allowed
+#define HMAC_MD_ALGO		EVP_sha1()
+#define HMAC_BYTES		20
+
+// signature constants.
 // chosen message digest algorithm and length (2048-bit key)
 // algorithm can be changed, but SIG_BYTES must remain 
 // the same because of our 2048-bit key
@@ -64,6 +71,7 @@ size_t pkDecrypt(unsigned char *in, size_t inLen, unsigned char **out, EVP_PKEY 
 size_t symEncrypt(unsigned char *in, size_t inLen, unsigned char **out, unsigned char *key);
 size_t symDecrypt(unsigned char *in, size_t inLen, unsigned char **out, unsigned char *key);
 int calcMD(unsigned char *in, size_t inLen, unsigned char **out);
+int calcHMAC(unsigned char *in, size_t inLen, unsigned char **out, unsigned char *key, size_t keyLen);
 
 // in this namespace for now
 int genLogID(unsigned char *id);

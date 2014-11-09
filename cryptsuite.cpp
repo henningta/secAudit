@@ -660,6 +660,71 @@ err:
 
 /**
 
+  calcHMAC 
+
+  Calculates a message digest sepecified by HMAC_MD_ALGO
+  and the key. Length of digest output is specified by HMAC_BYTES.
+  
+  @param in      input
+  @param inLen   length of input
+  @param out     pointer to HMAC buffer
+  @param key	 key to be used for HMAC
+  @param keyLen  key length
+
+  @return        1 for success, 0 otherwise
+
+*/
+int calcHMAC(unsigned char *in, size_t inLen, unsigned char **out, unsigned char *key, size_t keyLen) {
+
+	HMAC_CTX hctx;
+	int ret;
+	unsigned int outLen;
+
+	ret = 1;
+
+	*out = new unsigned char[HMAC_BYTES];
+	if (*out == NULL) {
+		ret = 0;
+		fprintf(fpErr, "Error: Failed to allocate buffer\n");
+		goto err;
+	}
+	memset(*out, '\0', HMAC_BYTES);
+
+	HMAC_CTX_init(&hctx);
+
+	if ( HMAC_Init_ex(&hctx, key, keyLen, HMAC_MD_ALGO, NULL) != 1) {
+		ret = 0;
+		fprintf(fpErr, "Error: Failed to init HMAC context\n");
+		goto err;
+	}
+
+	if ( HMAC_Update(&hctx, in, inLen) != 1) {
+		ret = 0;
+		fprintf(fpErr, "Error: Failed to update HMAC\n");
+		goto err;
+	}
+
+	if ( HMAC_Final(&hctx, *out, &outLen) != 1) {
+		ret = 0;
+		fprintf(fpErr, "Error: Failed to finalize HMAC\n");
+		goto err;
+
+	}
+
+err:
+	ERR_print_errors_fp(fpErr);
+
+	// clean up
+	HMAC_CTX_cleanup(&hctx);
+	
+	if (ret == 0 && out != NULL)
+		delete[] *out;
+
+	return ret;
+}
+
+/**
+
   genLogID
 
   Generates a new log ID based on the date and time
