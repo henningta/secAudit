@@ -1,9 +1,10 @@
 #include "cryptsuite.hpp"
+#include "debug.hpp"
 
 using namespace cryptsuite;
 
 //FILE *fpErr = fopen(ERR_FILE, "a+");
-FILE *fpErr = stderr;
+extern FILE *fpErr;
 
 int main(int argc, char** argv) {
 
@@ -33,17 +34,12 @@ int main(int argc, char** argv) {
 				  0xEE, 0xFF, 0x01, 0x02 };
 	// symmetric encryption
 	enc_len = symEncrypt(plain, sizeof(plain), &enc, symKey); 
-
-	printf("Encrypted:\n");
-	for (i = 0; i < enc_len; i++) printf("0x%02X ", enc[i]);
-	printf("\n\n");
+	first4Last4("Encrypted", enc, enc_len);
 
 	// symmetric decryption
 	dec_len = symDecrypt(enc, enc_len, &dec, symKey);
 
-	printf("Decrypted:\n");
-	for (i = 0; i < dec_len; i++) printf("0x%02X ", dec[i]);
-	printf("\n\n");
+	first4Last4("Decrypted", dec, dec_len);
 
 	// don't forget to free
 	delete[] dec;
