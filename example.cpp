@@ -11,6 +11,57 @@ int main(int argc, char** argv) {
 	ERR_load_crypto_strings();
 	OpenSSL_add_all_algorithms();
 
+
+	printf("##### Public key Encryption/Decryption ####\n\n");
+
+	
+	EVP_PKEY *trustedPub;
+	EVP_PKEY *trustedPriv;
+
+	unsigned char data[] = { 0x00, 0x01, 0x02, 0x03 };
+	unsigned char *encData;
+	unsigned char *decData;
+	size_t byteCnt, decryptedCnt;
+
+	first4Last4("Plaintext", data, 4);
+
+	// MUST ALLOCATE MEMORY FOR KEYS
+	trustedPub = EVP_PKEY_new();
+	trustedPriv = EVP_PKEY_new();
+
+	if ( ! loadRSAPublicKey(TRUSTED_PUB, &trustedPub) )
+        	fprintf(fpErr, "Error: Could not load T's public key\n");
+	
+	// encrypt
+	byteCnt =  pkEncrypt(data, 4, &encData, trustedPub);
+	first4Last4("Encrypted bytes", encData, byteCnt);
+	
+	// decrypt
+	if ( ! loadRSAPrivateKey(TRUSTED_PRIV, &trustedPriv) )
+               fprintf(fpErr, "Error: Could not load U's private key\n");
+
+	decryptedCnt = pkDecrypt(encData, byteCnt, &decData, trustedPriv);
+	first4Last4("Decrypted bytes", decData, decryptedCnt);
+
+	
+	// free memory
+	EVP_PKEY_free(trustedPub);
+	EVP_PKEY_free(trustedPriv);
+
+	delete[] encData;
+	delete[] decData;
+
+	printf("###########################################\n");
+
+
+	
+
+
+
+
+
+
+
 	// symmetric key
 		
 	unsigned char symKey[] = { 0x00, 0x01, 0x02, 0x03,
