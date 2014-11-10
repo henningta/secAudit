@@ -27,14 +27,12 @@ private:
 	std::map<std::string, PayLoad> payloads;
 
 public:
-	Message(const Message& other );
 	MessageState get_p();
 	Message(std::string ID, MessageState state);
 	Message();
 	std::string get_ID();
 	std::vector< unsigned char >  get_payload(std::string name);
 	int get_payload_size(std::string name);
-	~Message();
 };
 
 
@@ -52,11 +50,12 @@ public:
 	void set_ID(std::string);
 	void set_MessageState(MessageState);
 	void clear_payload();
-	Message get_message();
+	
+  Message get_message();
 	//ID is the name of the fuction calling message maker
 	MessageMaker(std::string ID, MessageState state);
 	MessageMaker();
-	~MessageMaker();
+
 
 private:
 	Message msg;
@@ -64,14 +63,11 @@ private:
 
 
 class PayLoad {
-	friend class MessageMaker;
-	friend class Message;
-public:
-	~PayLoad();
-	PayLoad();
-	private:
-	size_t len;
-	unsigned char * payload;
+  friend class MessageMaker;
+  friend class Message;
+private:
+  size_t len;
+  std::shared_ptr< unsigned char > payload;
 };
 
 #endif // __MESSAGE_HPP__
