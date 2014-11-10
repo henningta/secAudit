@@ -52,7 +52,7 @@
 
 // sizes for initialization
 #define SESSION_KEY_LEN		16		// k0 and k1 
-#define AUTH_KEY_LEN		16		// a0 (aj's need not be this)
+#define AUTH_KEY_LEN		32		// must be the same as MD_BYTES
 #define LOG_ID_LEN		17		// includes space for \0	
 #define MAX_WAIT		5		// seconds before timeout
 #define DER_CERT_MAX		2000		// max size of DER cert
