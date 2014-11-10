@@ -128,9 +128,12 @@ Message UntrustedObject::createLog(const std::string & logName) {
 			(const char *) &M0[0], M0.length());
 
 	_log.setName(logName);
-	if (!_log.open(D0)) {
+	if (!_log.open(D0, Aj)) {
 		throw std::runtime_error("Open Log returned false");
 	}
+
+	// increment Aj key
+	incrementAj();
 
 	return msgFact.get_message();
 }
@@ -162,10 +165,13 @@ void UntrustedObject::incrementAj() {
  * @author 	Travis Henning , Jackson Reed
  */
 Message UntrustedObject::addEntry(const std::string & message) {
-	bool app = _log.append(message);
+	bool app = _log.append(message, Aj);
 	if (!app){
 		throw std::runtime_error("Append Log returned false");
 	}
+
+	// increment Aj key
+	incrementAj();
 
 	return msgFact.get_message();
 
@@ -180,10 +186,13 @@ Message UntrustedObject::addEntry(const std::string & message) {
  * @author 	Travis Henning , Jackson Reed
  */
 Message UntrustedObject::closeLog() {
-	bool close = _log.close();
+	bool close = _log.close(Aj);
 	if (!close){
 		throw std::runtime_error("Close Log returned false");
 	}
+
+	// increment Aj key
+	incrementAj();
 
 	return msgFact.get_message();
 

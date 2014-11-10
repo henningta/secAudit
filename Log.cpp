@@ -51,7 +51,7 @@ std::string encryptMessage(const std::string & message,
  * @return 	bool
  * @author 	Travis Henning
  */
-bool Log::open(const std::string & D0) {
+bool Log::open(const std::string & D0, const std::string & A0) {
 	_logFile.open(_logName.c_str(), std::ios::app);
 
 	if (!_logFile.is_open()) {
@@ -62,7 +62,7 @@ bool Log::open(const std::string & D0) {
 	std::string message = D0;
 
 	// create hash of entry type and key A to form symKey
-	std::string keyAj = "blahblahblah";
+	std::string keyAj = A0;
 	std::string hashedKey = hashTypeKey(LOG_ENTRY_OPEN, keyAj);
 
 	// symEncrypt message with symKey created from hash
@@ -86,7 +86,7 @@ bool Log::open(const std::string & D0) {
  * @return 	bool
  * @author 	Travis Henning
  */
-bool Log::close() {
+bool Log::close(const std::string & Aj) {
 	if (!_logFile.is_open()) {
 		return false;
 	}
@@ -94,7 +94,7 @@ bool Log::close() {
 	std::string message = "\nLog file \"" + _logName + "\" closed.";
 
 	// create hash of entry type and key A to form symKey
-	std::string keyAj = "blahblahblah";
+	std::string keyAj = Aj;
 	std::string hashedKey = hashTypeKey(LOG_ENTRY_CLOSE, keyAj);
 
 	// symEncrypt message with symKey created from hash
@@ -119,13 +119,13 @@ bool Log::close() {
  * @return 	bool
  * @author 	Travis Henning
  */
-bool Log::append(const std::string & message) {
+bool Log::append(const std::string & message, const std::string & A0) {
 	if (!_logFile.is_open()) {
 		return false;
 	}
 
 	// create hash of entry type and key A to form symKey
-	std::string keyAj = "blahblahblah";
+	std::string keyAj = A0;
 	std::string hashedKey = hashTypeKey(LOG_ENTRY_APPEND, keyAj);
 
 	// symEncrypt message with symKey created from hash

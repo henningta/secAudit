@@ -21,6 +21,9 @@ private:
 	std::ofstream 			_logFile;
 	std::string 			_logName;
 	std::vector<LogEntry> 	_logEntries;
+
+	std::string _Yj;
+	std::string _Zj;
 public:
 	Log() {}
 	Log(std::string logName) : _logName(logName) {}
@@ -28,9 +31,9 @@ public:
 	inline const std::string & getName() const { return _logName; }
 	inline void setName(const std::string & logName) { _logName = logName; }
 
-	bool open(const std::string & D0);
-	bool close();
-	bool append(const std::string & message);
+	bool open(const std::string & D0, const std::string & A0);
+	bool close(const std::string & Aj);
+	bool append(const std::string & message, const std::string & Aj);
 
 	inline bool isOpen() { return _logFile.is_open(); }
 	inline int getNumEntries() { return _logEntries.size(); }
