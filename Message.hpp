@@ -25,6 +25,7 @@ private:
   std::map<std::string, PayLoad> payloads;
 
 public:
+  Message(const Message& other );
   MessageState get_p();
   Message(std::string ID, MessageState state);
   Message();

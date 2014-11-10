@@ -10,8 +10,8 @@ PayLoad::PayLoad(){
   len=0;
 }
 PayLoad::~PayLoad(){
-//  if(len>0)
-  //  delete(payload);
+  if(len>0)
+    delete(payload);
 }
 
 ////////////////////////
@@ -38,6 +38,21 @@ Message::get_p() {
 std::string
 Message::get_ID(){
   return mID;
+}
+
+Message::Message(const Message& other ){
+  std::map<std::string, PayLoad>::const_iterator it = other.payloads.begin();
+  for ( ;it!=other.payloads.end();it++ ){
+    unsigned char * mem = (unsigned char *)new char[it->second.len];
+    memcpy((void *)mem,it->second.payload,it->second.len);
+    PayLoad py;
+    py.len=it->second.len;
+    py.payload=mem;
+    payloads[it->first]=py;
+
+  }
+
+
 }
 
 std::vector<unsigned char>
