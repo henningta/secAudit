@@ -34,29 +34,36 @@ UntrustedObject::UntrustedObject(){
  * @author 	Travis Henning , Jackson Reed, Timothy Thong
  */
 Message UntrustedObject::createLog(const std::string & logName) {
-	std::string		p;
-	std::string 	K0;
-	std::string 	A0;
-	std::string		encK0;
-	std::string   	Cu;
-	std::string   	X0;
-	std::string		d;
-	std::string		M0;
-	std::string		signedX0;
-	std::string		X0DataSig;
-	std::string		encX0Data;
-	Message			M0part;
+	std::string			p;
+	std::string 			K0;
+	std::string 			A0;
+	std::string			encK0;
+	std::string   			Cu;
+	std::string   			X0;
+	std::string			d;
+	std::string			d_limit;
+	std::string			M0;
+	std::string			D0;
+	std::string			signedX0;
+	std::string			X0DataSig;
+	std::string			encX0Data;
+	Message				M0part;
 	std::vector<unsigned char>	tmpVector;
-	size_t 			num_bytes;
-	size_t			CuLen;
-	X509 			*pemCert;
-	unsigned char 	*tmpBuf;
+	size_t				CuLen;
+	X509 				*pemCert;
+	unsigned char 			*tmpBuf;
+        unsigned char			tmpFixedBuf[5000];
 
 	p = std::to_string(MessageState::VER_INIT_REQ);
 
 	// generate random bytes for K0 and A0
-	cryptsuite::genRandBytes( (unsigned char *) &K0[0], AUTH_KEY_LEN );
-	cryptsuite::genRandBytes( (unsigned char *) &A0[0], SESSION_KEY_LEN );
+	cryptsuite::genRandBytes( tmpFixedBuf, SESSION_KEY_LEN );
+	K0 = std::string((const char *) tmpFixedBuf, SESSION_KEY_LEN);
+	cryptsuite::genRandBytes( tmpFixedBuf, AUTH_KEY_LEN );
+	A0 = std::string((const char *) tmpFixedBuf, AUTH_KEY_LEN);
+
+	// update Aj for current log entry
+	Aj = A0;
 
 	// load X509 cert and re-encode to DER
 	if ( ! cryptsuite::loadX509Cert(UNTRUSTED_CERT, &pemCert) ) {
@@ -66,8 +73,9 @@ Message UntrustedObject::createLog(const std::string & logName) {
 	tmpBuf = tmpBuf - CuLen;
 	Cu = std::string((const char *) tmpBuf, CuLen);
 
-	// get current timestamp
+	// get current timestamp d and set d+
 	d = std::to_string( cryptsuite::getCurrentTimeStamp() );
+	d_limit = std::to_string( atol(&d[0]) + MAX_WAIT );
 
 	// setup X0 - p, d, Cu, A0
 	X0 = p;
@@ -86,7 +94,6 @@ Message UntrustedObject::createLog(const std::string & logName) {
 	tmpVector = M0part.get_payload("SIGNED_X0");
 	signedX0 = std::string(tmpVector.begin(), tmpVector.end());
 
-
 	X0DataSig = X0;
 	X0DataSig.replace(X0DataSig.length(), signedX0.length(),
 			(const char *) &signedX0[0], signedX0.length());
@@ -94,7 +101,8 @@ Message UntrustedObject::createLog(const std::string & logName) {
 	// encrypt signed X0 data
 	msgFact.set_symencrypt("ENCRYPTED_X0_DATA", X0DataSig.length(),
 			(unsigned char *) &X0DataSig[0], (unsigned char *) &K0[0]);
-	// form M0
+	
+	// form M0 - p, IDu, Pk(K0), Ek(X0, signedX0)
 	M0part = msgFact.get_message();
 	tmpVector = M0part.get_payload("ENCRYPTED_K0");
 	encK0 = std::string(tmpVector.begin(), tmpVector.end());
@@ -103,17 +111,45 @@ Message UntrustedObject::createLog(const std::string & logName) {
 
 	M0 = p;
 	M0.replace(M0.length(), strlen(U_ID), U_ID, strlen(U_ID));
-	M0.replace(M0.length(), encK0.length(), (const char *) &encK0[0], encK0.length());
-	M0.replace(M0.length(), encX0Data.length(), (const char *) &encX0Data[0], encX0Data.length());
+	M0.replace(M0.length(), encK0.length(), 
+			(const char *) &encK0[0], encK0.length());
+	M0.replace(M0.length(), encX0Data.length(), 
+			(const char *) &encX0Data[0], encX0Data.length());
 
 	msgFact.set("M0", M0.length(), (unsigned char *) &M0[0]);
 
+	// form D0 - d, d+, IDlog, M0
+	D0 = d;
+	D0.replace(D0.length(), d_limit.length(), 
+			(const char *) &d_limit[0], d_limit.length());
+	D0.replace(D0.length(), logName.length(),
+			(const char *) &logName[0], logName.length());
+	D0.replace(D0.length(), M0.length(),
+			(const char *) &M0[0], M0.length());
+	
 	_log.setName(logName);
 	if (!_log.open()){
 		throw std::runtime_error("Open Log returned false");
 	}
+	addEntry(D0);
 
 	return msgFact.get_message();
+}
+
+/**
+* UntrustedObject::incrementAj
+*
+* Increment Aj for the next log entry
+*
+* @author      Timothy Thong   
+*/
+void UntrustedObject::incrementAj() {
+
+  	unsigned char *newKey;  
+	cryptsuite::calcMD((unsigned char *) &Aj[0], AUTH_KEY_LEN, &newKey);
+  	Aj.replace(0, AUTH_KEY_LEN, (const char *) newKey, AUTH_KEY_LEN);
+
+  	delete[] newKey;
 }
 
 /**
