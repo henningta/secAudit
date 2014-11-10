@@ -28,7 +28,7 @@ public:
 	inline const std::string & getName() const { return _logName; }
 	inline void setName(const std::string & logName) { _logName = logName; }
 
-	bool open();
+	bool open(const std::string & D0);
 	bool close();
 	bool append(const std::string & message);
 

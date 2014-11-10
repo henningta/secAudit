@@ -51,14 +51,15 @@ std::string encryptMessage(const std::string & message,
  * @return 	bool
  * @author 	Travis Henning
  */
-bool Log::open() {
+bool Log::open(const std::string & D0) {
 	_logFile.open(_logName.c_str(), std::ios::app);
 
 	if (!_logFile.is_open()) {
 		return false;
 	}
 
-	std::string message = "Log file \"" + _logName + "\" created.";
+	//std::string message = "Log file \"" + _logName + "\" created.";
+	std::string message = D0;
 
 	// create hash of entry type and key A to form symKey
 	std::string keyAj = "blahblahblah";

@@ -101,7 +101,7 @@ Message UntrustedObject::createLog(const std::string & logName) {
 	// encrypt signed X0 data
 	msgFact.set_symencrypt("ENCRYPTED_X0_DATA", X0DataSig.length(),
 			(unsigned char *) &X0DataSig[0], (unsigned char *) &K0[0]);
-	
+
 	// form M0 - p, IDu, Pk(K0), Ek(X0, signedX0)
 	M0part = msgFact.get_message();
 	tmpVector = M0part.get_payload("ENCRYPTED_K0");
@@ -111,27 +111,26 @@ Message UntrustedObject::createLog(const std::string & logName) {
 
 	M0 = p;
 	M0.replace(M0.length(), strlen(U_ID), U_ID, strlen(U_ID));
-	M0.replace(M0.length(), encK0.length(), 
+	M0.replace(M0.length(), encK0.length(),
 			(const char *) &encK0[0], encK0.length());
-	M0.replace(M0.length(), encX0Data.length(), 
+	M0.replace(M0.length(), encX0Data.length(),
 			(const char *) &encX0Data[0], encX0Data.length());
 
 	msgFact.set("M0", M0.length(), (unsigned char *) &M0[0]);
 
 	// form D0 - d, d+, IDlog, M0
 	D0 = d;
-	D0.replace(D0.length(), d_limit.length(), 
+	D0.replace(D0.length(), d_limit.length(),
 			(const char *) &d_limit[0], d_limit.length());
 	D0.replace(D0.length(), logName.length(),
 			(const char *) &logName[0], logName.length());
 	D0.replace(D0.length(), M0.length(),
 			(const char *) &M0[0], M0.length());
-	
+
 	_log.setName(logName);
-	if (!_log.open()){
+	if (!_log.open(D0)) {
 		throw std::runtime_error("Open Log returned false");
 	}
-	addEntry(D0);
 
 	return msgFact.get_message();
 }
@@ -141,11 +140,11 @@ Message UntrustedObject::createLog(const std::string & logName) {
 *
 * Increment Aj for the next log entry
 *
-* @author      Timothy Thong   
+* @author      Timothy Thong
 */
 void UntrustedObject::incrementAj() {
 
-  	unsigned char *newKey;  
+  	unsigned char *newKey;
 	cryptsuite::calcMD((unsigned char *) &Aj[0], AUTH_KEY_LEN, &newKey);
   	Aj.replace(0, AUTH_KEY_LEN, (const char *) newKey, AUTH_KEY_LEN);
 
