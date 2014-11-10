@@ -38,10 +38,12 @@ public:
 class MessageMaker{
 public:
   //public key
-  void set_encrypt(std::string name, size_t leng ,unsigned char * unencrypted, EVP_PKEY * pkey);
+  void set_pkencrypt(std::string name, size_t leng ,unsigned char * unencrypted, EVP_PKEY * pkey);
 
   void set_sign(std::string name, size_t leng ,unsigned char * unencrypted, EVP_PKEY * pkey);
   
+  //symmetric encryption
+  void set_symencrypt(std::string name, size_t leng ,unsigned char * unencrypted, unsigned char *key);
   
   void set(std::string name, size_t leng ,unsigned char * unencrypted);
   void set_ID(std::string);

@@ -1,4 +1,5 @@
 #include "Message.hpp"
+#include "cryptsuite.hpp"
 #include <string.h>
 #include <stdexcept>
 //Message.cpp
@@ -9,8 +10,8 @@ PayLoad::PayLoad(){
   len=0;
 }
 PayLoad::~PayLoad(){
-  if(len>0)
-    delete(payload);
+//  if(len>0)
+  //  delete(payload);
 }
 
 ////////////////////////
@@ -70,22 +71,32 @@ Message::get_payload_size(std::string name){
 
 
 void
-MessageMaker::set_encrypt(std::string name, size_t leng ,unsigned char * unencrypted, EVP_PKEY *pkey){
+MessageMaker::set_pkencrypt(std::string name, size_t leng ,unsigned char * unencrypted, EVP_PKEY *pkey){
 
   PayLoad pay;
   pay.len=cryptsuite::pkEncrypt( unencrypted, leng, &(pay.payload), pkey);
   msg.payloads[name]=pay;
 }
 
+void
+MessageMaker::set_symencrypt(std::string name, size_t leng,unsigned char * unencrypted, unsigned char *key){
 
+  PayLoad pay;
+  pay.len=cryptsuite::symEncrypt( unencrypted, leng, &(pay.payload), key);
+  msg.payloads[name]=pay;
+}
 
 void
 MessageMaker::set_sign(std::string name, size_t leng ,unsigned char * unencrypted, EVP_PKEY *pkey){
 
   PayLoad pay;
-  //pay.payload=(unsigned char *)malloc(sizeof(unsigned char)*leng);
-  pay.len=(size_t)cryptsuite::createSignature( unencrypted , leng , &pay.payload , pkey );
-  msg.payloads[name]=pay;
+  
+  if(cryptsuite::createSignature( unencrypted , leng , &(pay.payload) , pkey )) {
+    pay.len = SIG_BYTES;
+    msg.payloads[name]=pay;
+  } else {
+      pay.len = 0;
+  }
 
 }
 
