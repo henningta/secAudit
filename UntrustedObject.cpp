@@ -87,14 +87,14 @@ Message UntrustedObject::createLog(const std::string & logName) {
   tmpVector = M0part.get_payload("SIGNED_X0");
   signedX0 = std::string(tmpVector.begin(), tmpVector.end());
 
+
   X0DataSig = X0;
   X0DataSig.replace(X0DataSig.length(), signedX0.length(), 
 		(const char *) &signedX0[0], signedX0.length());
 
   // encrypt signed X0 data
   msgFact.set_symencrypt("ENCRYPTED_X0_DATA", X0DataSig.length(), 
-		(unsigned char *) &X0DataSig, (unsigned char *) &K0[0]);
-
+		(unsigned char *) &X0DataSig[0], (unsigned char *) &K0[0]);
   // form M0
   M0part = msgFact.get_message();
   tmpVector = M0part.get_payload("ENCRYPTED_K0");
