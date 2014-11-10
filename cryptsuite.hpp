@@ -1,3 +1,6 @@
+#ifndef __CRYPTSUITE_HPP__
+#define __CRYPTSUITE_HPP__
+
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -34,7 +37,7 @@
 
 // signature constants.
 // chosen message digest algorithm and length (2048-bit key)
-// algorithm can be changed, but SIG_BYTES must remain 
+// algorithm can be changed, but SIG_BYTES must remain
 // the same because of our 2048-bit key
 #define SIG_MD_ALGO		EVP_sha512()
 #define SIG_BYTES		256
@@ -51,9 +54,9 @@
 #define SYM_BLK_SIZE		16
 
 // sizes for initialization
-#define SESSION_KEY_LEN		16		// k0 and k1 
+#define SESSION_KEY_LEN		16		// k0 and k1
 #define AUTH_KEY_LEN		32		// must be the same as MD_BYTES
-#define LOG_ID_LEN		17		// includes space for \0	
+#define LOG_ID_LEN		17		// includes space for \0
 #define MAX_WAIT		5		// seconds before timeout
 #define DER_CERT_MAX		2000		// max size of DER cert
 
@@ -92,3 +95,6 @@ int genLogID(unsigned char *id);
 long int getCurrentTimeStamp(void);
 
 }
+
+#endif // __CRYPTSUITE_HPP__
+
