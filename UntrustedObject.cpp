@@ -9,8 +9,7 @@
 extern FILE* fpErr;
 
 UntrustedObject::UntrustedObject(){
-	msgFact= MessageMaker(U_ID, MessageState::UNINITIALIZED,
-			MessageType::TYPE_OPEN);
+	msgFact= MessageMaker(U_ID, MessageState::UNINITIALIZED);
 
 	// allocate memory for keys (mandatory)
 	pub = EVP_PKEY_new();

@@ -11,15 +11,14 @@ PayLoad::PayLoad(){
 }
 PayLoad::~PayLoad(){
 
-  if(len>0)
-    delete(payload);
+  //if(len>0)
+    //delete(payload);
 }
 
 ////////////////////////
-Message::Message(std::string ID, MessageState state, MessageType type) {
+Message::Message(std::string ID, MessageState state) {
 	mP= state;
 	mID=ID;
-	mT = type;
 }
 
 Message::Message(){
@@ -42,13 +41,7 @@ Message::get_ID(){
 	return mID;
 }
 
-MessageType
-Message::get_type() {
-	return mT;
-}
-
 Message::Message(const Message& other ){
-  mT=other.mT;
   mP=other.mP;
   mID=other.mID;
   std::map<std::string, PayLoad>::const_iterator it = other.payloads.begin();
@@ -67,7 +60,6 @@ Message::Message(const Message& other ){
 
 std::vector<unsigned char>
 Message::get_payload(std::string name){
-
 	std::map<std::string, PayLoad>::iterator it = payloads.find(name);
 
 	if(it == payloads.end()){
@@ -144,14 +136,12 @@ MessageMaker::get_message(){
 	return msg;
 }
 
-MessageMaker::MessageMaker(std::string ID, MessageState state,
-		MessageType type){
-	msg = Message(ID, state, type);
-
+MessageMaker::MessageMaker(std::string ID, MessageState state){
+	msg = Message(ID, state);
 }
+
 MessageMaker::MessageMaker(){
-	msg=Message("UNINITIALIZED",MessageState::UNINITIALIZED,
-			MessageType::TYPE_NOT_INIT);
+	msg=Message("UNINITIALIZED",MessageState::UNINITIALIZED);
 }
 
 void
@@ -162,11 +152,6 @@ MessageMaker::set_ID(std::string ID){
 void
 MessageMaker::set_MessageState(MessageState state){
 	msg.mP=state;
-}
-
-void
-MessageMaker::set_MessageType(MessageType type) {
-	msg.mT = type;
 }
 
 MessageMaker::~MessageMaker(){

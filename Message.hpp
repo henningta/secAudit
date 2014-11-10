@@ -15,73 +15,63 @@ enum MessageState {
 	UNINITIALIZED
 }; //this is refered to as "p" in the paper
 
-enum MessageType {
-	TYPE_OPEN,
-	TYPE_APPEND,
-	TYPE_CLOSE,
-	TYPE_NOT_INIT
-};
-
 class MessageMaker;
 class PayLoad;
 
 class Message {
-  friend class MessageMaker;
+	friend class MessageMaker;
 
 private:
-  MessageState mP;
-  MessageType mT;
-  std::string mID;
-  std::map<std::string, PayLoad> payloads;
+	MessageState mP;
+	std::string mID;
+	std::map<std::string, PayLoad> payloads;
 
 public:
-  Message(const Message& other );
-  MessageState get_p();
-  MessageType get_type();
-  Message(std::string ID, MessageState state, MessageType type);
-  Message();
-  std::string get_ID();
-  std::vector< unsigned char >  get_payload(std::string name);
-  int get_payload_size(std::string name);
-  ~Message();
+	Message(const Message& other );
+	MessageState get_p();
+	Message(std::string ID, MessageState state);
+	Message();
+	std::string get_ID();
+	std::vector< unsigned char >  get_payload(std::string name);
+	int get_payload_size(std::string name);
+	~Message();
 };
 
 
 class MessageMaker {
 public:
-  //public key
-  void set_pkencrypt(std::string name, size_t leng ,unsigned char * unencrypted, EVP_PKEY * pkey);
+	//public key
+	void set_pkencrypt(std::string name, size_t leng ,unsigned char * unencrypted, EVP_PKEY * pkey);
 
-  void set_sign(std::string name, size_t leng ,unsigned char * unencrypted, EVP_PKEY * pkey);
+	void set_sign(std::string name, size_t leng ,unsigned char * unencrypted, EVP_PKEY * pkey);
 
-  //symmetric encryption
-  void set_symencrypt(std::string name, size_t leng ,unsigned char * unencrypted, unsigned char *key);
+	//symmetric encryption
+	void set_symencrypt(std::string name, size_t leng ,unsigned char * unencrypted, unsigned char *key);
 
-  void set(std::string name, size_t leng ,unsigned char * unencrypted);
-  void set_ID(std::string);
-  void set_MessageState(MessageState);
-  void set_MessageType(MessageType);
-  void clear_payload();
-  Message get_message();
-  //ID is the name of the fuction calling message maker
-  MessageMaker(std::string ID, MessageState state, MessageType type);
-  MessageMaker();
-  ~MessageMaker();
+	void set(std::string name, size_t leng ,unsigned char * unencrypted);
+	void set_ID(std::string);
+	void set_MessageState(MessageState);
+	void clear_payload();
+	Message get_message();
+	//ID is the name of the fuction calling message maker
+	MessageMaker(std::string ID, MessageState state);
+	MessageMaker();
+	~MessageMaker();
 
 private:
-  Message msg;
+	Message msg;
 };
 
 
 class PayLoad {
-  friend class MessageMaker;
-  friend class Message;
+	friend class MessageMaker;
+	friend class Message;
 public:
-  ~PayLoad();
-  PayLoad();
-private:
-  size_t len;
-  unsigned char * payload;
+	~PayLoad();
+	PayLoad();
+	private:
+	size_t len;
+	unsigned char * payload;
 };
 
 #endif // __MESSAGE_HPP__
