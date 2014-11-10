@@ -7,64 +7,70 @@
 
 ////////////////////////////
 PayLoad::PayLoad(){
-  len=0;
+	len=0;
 }
 PayLoad::~PayLoad(){
-//  if(len>0)
-  //  delete(payload);
+	//  if(len>0)
+	//  delete(payload);
 }
 
 ////////////////////////
-Message::Message(std::string ID, MessageState state){
-  mP= state;
-  mID=ID;
+Message::Message(std::string ID, MessageState state, MessageType type) {
+	mP= state;
+	mID=ID;
+	mT = type;
 }
 
 Message::Message(){
-  //Not Used
+	//Not Used
 }
 
 
 
 Message::~Message(){
-  //Not used
+	//Not used
 }
 
 MessageState
 Message::get_p() {
-  return mP;
+	return mP;
 }
 
 std::string
 Message::get_ID(){
-  return mID;
+	return mID;
+}
+
+MessageType
+Message::get_type() {
+	return mT;
 }
 
 std::vector<unsigned char>
 Message::get_payload(std::string name){
 
-  std::map<std::string, PayLoad>::iterator it = payloads.find(name);
+	std::map<std::string, PayLoad>::iterator it = payloads.find(name);
 
-  if(it == payloads.end()){
-    throw std::invalid_argument(name);
-  }
+	if(it == payloads.end()){
+		throw std::invalid_argument(name);
+	}
 
-  size_t leng=it->second.len;
-  std::vector< unsigned char > ret(leng);
-  memcpy(&ret[0],it->second.payload,leng);
-  return ret;
+	size_t leng=it->second.len;
+	std::vector< unsigned char > ret(leng);
+	memcpy(&ret[0],it->second.payload,leng);
+	return ret;
 
 }
 
 int
 Message::get_payload_size(std::string name){
-  std::map<std::string, PayLoad>::iterator it = payloads.find(name);
+	std::map<std::string, PayLoad>::iterator it = payloads.find(name);
 
-  if(it == payloads.end()){
-    throw std::invalid_argument(name);
-  }
+	if(it == payloads.end()){
+		throw std::invalid_argument(name);
+	}
 
-  return it->second.len;
+	return it->second.len;
 }
 
 ////////////////////////
@@ -73,70 +79,77 @@ Message::get_payload_size(std::string name){
 void
 MessageMaker::set_pkencrypt(std::string name, size_t leng ,unsigned char * unencrypted, EVP_PKEY *pkey){
 
-  PayLoad pay;
-  pay.len=cryptsuite::pkEncrypt( unencrypted, leng, &(pay.payload), pkey);
-  msg.payloads[name]=pay;
+	PayLoad pay;
+	pay.len=cryptsuite::pkEncrypt( unencrypted, leng, &(pay.payload), pkey);
+	msg.payloads[name]=pay;
 }
 
 void
 MessageMaker::set_symencrypt(std::string name, size_t leng,unsigned char * unencrypted, unsigned char *key){
 
-  PayLoad pay;
-  pay.len=cryptsuite::symEncrypt( unencrypted, leng, &(pay.payload), key);
-  msg.payloads[name]=pay;
+	PayLoad pay;
+	pay.len=cryptsuite::symEncrypt( unencrypted, leng, &(pay.payload), key);
+	msg.payloads[name]=pay;
 }
 
 void
 MessageMaker::set_sign(std::string name, size_t leng ,unsigned char * unencrypted, EVP_PKEY *pkey){
 
-  PayLoad pay;
-  
-  if(cryptsuite::createSignature( unencrypted , leng , &(pay.payload) , pkey )) {
-    pay.len = SIG_BYTES;
-    msg.payloads[name]=pay;
-  } else {
-      pay.len = 0;
-  }
+	PayLoad pay;
+
+	if(cryptsuite::createSignature( unencrypted , leng , &(pay.payload) , pkey )) {
+		pay.len = SIG_BYTES;
+		msg.payloads[name]=pay;
+	} else {
+		pay.len = 0;
+	}
 
 }
 
 void
 MessageMaker::set(std::string name, size_t leng ,unsigned char * unencrypted){
-  PayLoad pay;
-  pay.payload=(unsigned char *)new char[leng+1];
-  memcpy(pay.payload,unencrypted,leng);
-  pay.len=leng;
-  msg.payloads[name]=pay;
+	PayLoad pay;
+	pay.payload=(unsigned char *)new char[leng+1];
+	memcpy(pay.payload,unencrypted,leng);
+	pay.len=leng;
+	msg.payloads[name]=pay;
 }
 
 void
 MessageMaker::clear_payload(){
-  msg.payloads.clear();
+	msg.payloads.clear();
 }
 
 Message
 MessageMaker::get_message(){
-  return msg;
+	return msg;
 }
 
-MessageMaker::MessageMaker(std::string ID,MessageState state){
-  msg = Message(ID,state);
+MessageMaker::MessageMaker(std::string ID, MessageState state,
+		MessageType type){
+	msg = Message(ID, state, type);
 
 }
 MessageMaker::MessageMaker(){
-  msg=Message("UNINITIALIZED",MessageState::UNINITIALIZED);
+	msg=Message("UNINITIALIZED",MessageState::UNINITIALIZED,
+			MessageType::TYPE_NOT_INIT);
 }
 
 void
 MessageMaker::set_ID(std::string ID){
-  msg.mID =ID;
+	msg.mID =ID;
 }
 
 void
 MessageMaker::set_MessageState(MessageState state){
-  msg.mP=state;
+	msg.mP=state;
+}
+
+void
+MessageMaker::set_MessageType(MessageType type) {
+	msg.mT = type;
 }
 
 MessageMaker::~MessageMaker(){
-  //not used
+	//not used
 }
