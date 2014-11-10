@@ -48,6 +48,9 @@ Message::get_type() {
 }
 
 Message::Message(const Message& other ){
+  mT=other.mT;
+  mP=other.mP;
+  mID=other.mID;
   std::map<std::string, PayLoad>::const_iterator it = other.payloads.begin();
   for ( ;it!=other.payloads.end();it++ ){
     unsigned char * mem = (unsigned char *)new char[it->second.len];
