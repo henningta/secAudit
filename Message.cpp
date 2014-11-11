@@ -55,38 +55,53 @@ Message::get_payload_size(std::string name){
 ////////////////////////
 
 
-void
-MessageMaker::set_pkencrypt(std::string name, size_t leng ,unsigned char * unencrypted, EVP_PKEY *pkey){
+int 
+MessageMaker::set_pkencrypt(std::string name, size_t leng ,unsigned char * unencrypted, EVP_PKEY *pkey) {
 
 	PayLoad pay;
 	unsigned char * cp;
-	pay.len=cryptsuite::pkEncrypt( unencrypted, leng, &cp, pkey);
-	pay.payload.reset(cp);
-	msg.payloads[name]=pay;
+	if ( (pay.len = cryptsuite::pkEncrypt(unencrypted, leng, &cp, pkey)) > 0 ) {
+		pay.payload.reset(cp);
+		msg.payloads[name]=pay;
+		return 1;
+
+	} else {
+		return 0;
+
+	}
 }
 
-void
-MessageMaker::set_symencrypt(std::string name, size_t leng,unsigned char * unencrypted, unsigned char *key){
+int
+MessageMaker::set_symencrypt(std::string name, size_t leng,unsigned char * unencrypted, unsigned char *key) {
 
 	PayLoad pay;
 	unsigned char * cp;
-	pay.len=cryptsuite::symEncrypt( unencrypted, leng, &cp, key);
-	pay.payload.reset(cp);
-	msg.payloads[name]=pay;
+	
+	if ( (pay.len = cryptsuite::symEncrypt(unencrypted, leng, &cp, key)) > 0 ) {
+		pay.payload.reset(cp);
+		msg.payloads[name]=pay;
+		return 1;
+
+	} else {
+		return 0;
+
+	}
 }
 
-void
+int
 MessageMaker::set_sign(std::string name, size_t leng ,unsigned char * unencrypted, EVP_PKEY *pkey){
 
 	PayLoad pay;
 	unsigned char * cp;
-	if(cryptsuite::createSignature( unencrypted , 
-					leng , &cp , pkey )) {
-	  pay.payload.reset(cp);
-	  pay.len = SIG_BYTES;
-	  msg.payloads[name]=pay;
+	if ( cryptsuite::createSignature(unencrypted,leng , &cp , pkey) ) {
+		pay.payload.reset(cp);
+	  	pay.len = SIG_BYTES;
+	  	msg.payloads[name]=pay;
+		return 1;
+
 	} else {
-		pay.len = 0;
+		return 0;
+
 	}
 
 }
