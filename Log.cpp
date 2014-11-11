@@ -3,22 +3,6 @@
 #include <iostream>
 #include "utils.hpp"
 
-std::string Log::getEntry(int n){
-  std::string ret="";
-  //flush ofstream
-
-  //save sposition of ofstream
-
-  //seek
-
-
-  //return value and topos
-
-
-  return ret;
-}
-
-
 std::string entryTypeToString(EntryType type) {
 	std::string entryType;
 
@@ -131,14 +115,14 @@ bool Log::open(const std::string & D0, const std::string & A0) {
 	_Yj = hashY("00000000000000000000", encryptedMessage, ENTRY_TYPE);
 	_Zj = hashZ(_Yj, keyAj);
 
-	std::string sizes = 
+	std::string sizes =
 	  numToString<int>(entryTypeToString(ENTRY_TYPE).length())+
           "|"+numToString<int>(encryptedMessage.length())+
           "|"+numToString<int>(_Yj.length())+
           "|"+numToString<int>(_Zj.length());
 
 	// concatenate items for entry
-	std::string concatenatedMessage = 
+	std::string concatenatedMessage =
 	  sizes + "|" + entryTypeToString(ENTRY_TYPE)
 	  + encryptedMessage + _Yj + _Zj;
 
@@ -185,11 +169,11 @@ bool Log::close(const std::string & Aj) {
           "|"+numToString<int>(encryptedMessage.length())+
           "|"+numToString<int>(_Yj.length())+
           "|"+numToString<int>(_Zj.length());
-	
+
 
 
 	// concatenate items for entry
-	std::string concatenatedMessage = sizes+ "|" 
+	std::string concatenatedMessage = sizes+ "|"
 	  +  entryTypeToString(ENTRY_TYPE) +
 	  encryptedMessage + _Yj  + _Zj;
 
