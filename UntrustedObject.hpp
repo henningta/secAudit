@@ -23,14 +23,15 @@ private:
   EVP_PKEY *priv;
   EVP_PKEY *trustPub;
   std::string Aj;
-  
+  long int d_max;
+
 public:
 
   UntrustedObject();
   Message createLog(const std::string & logName);
   Message addEntry(const std::string & message);
   Message closeLog();
-  void verifyInitResponse(const std::string & message);
+  void verifyInitResponse(Message M1);
   void incrementAj();
   
   inline const std::string & getLogName() { return _log.getName(); }

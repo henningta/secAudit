@@ -83,7 +83,6 @@ Message TrustedObject::verifyInitMessage(Message M0) {
 	unsigned char			*tmpBuf;
 	unsigned char			tmpFixedBuf[5000];
 	size_t				decBytes;
-	size_t				len;
 	size_t				X0Len;
 	size_t				cuLen;
 	X509				*untrustCert;
@@ -94,14 +93,14 @@ Message TrustedObject::verifyInitMessage(Message M0) {
 	tmpVector = M0.get_payload("ENCRYPTED_K0");
 	cryptsuite::pkDecrypt((unsigned char *) &tmpVector[0], tmpVector.size(), &tmpBuf, priv);
 	K0 = std::string((const char *) tmpBuf, SESSION_KEY_LEN);
-	delete tmpBuf;
+	delete tmpBuf[];
 
 	// obtain X0 || signedX0
 	tmpVector = M0.get_payload("ENCRYPTED_X0_DATA");
 	decBytes = cryptsuite::symDecrypt((unsigned char *) &tmpVector[0], tmpVector.size(),
 						&tmpBuf, (unsigned char *) &K0[0]); 
 	decX0Data = std::string((const char *) tmpBuf, decBytes);
-	delete tmpBuf;
+	delete tmpBuf[];
 
 	// verify X0 - p, d, Cu, A0
 	tmpVector = M0.get_payload("X0LEN");
@@ -135,7 +134,7 @@ Message TrustedObject::verifyInitMessage(Message M0) {
 		fprintf(fpErr, "Error: Could not hash X0\n");
 	}
 	hashedX0 = std::string((const char *) &hashedX0[0], MD_BYTES);
-	delete tmpBuf;
+	delete tmpBuf[];
 
 	X1 = p;
 	X1.replace(X1.length(), MD_BYTES, (const char *) &hashedX0[0], MD_BYTES);
