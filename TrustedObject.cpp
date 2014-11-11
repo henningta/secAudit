@@ -43,8 +43,7 @@ TrustedObject::TrustedObject() {
 /**
  * UntrustedObject::verifyCertificate
  *
- * Creates a log of the given name by calling its _log member's open
- * function
+ * Verifies a given certificate
  *
  * @param       cert	X509 cert
  * @return      	1 if verified, other values otherwise
