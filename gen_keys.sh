@@ -57,38 +57,14 @@ status
 openssl rsa -in ${TRUSTED}.priv -outform PEM -pubout -out ${TRUSTED}.pub
 status
 
-# create CSR for trusted server
-echo -e "\n===> Generating CSR for trusted server"
-openssl req -new -key ${TRUSTED}.priv -out ${TRUSTED}.cert -outform PEM \
- -out ${TRUSTED}.cert.csr \
- -subj "/C=US/ST=Indiana/O=Purdue University/CN=Trusted Server/" 
-status
-
-# trusted server acts as a CA and self-signs it's own cert
-
-echo -e "\n===> Self-signing trusted server cert"
-openssl x509 -req -days 365 -in ${TRUSTED}.cert.csr -signkey ${TRUSTED}.priv \
- -out ${TRUSTED}.cert
-status
-
-# trusted server signs the CSR
-
-# generate trusted server keys and CSR
-echo -e "\n===> Generating keys and self-signing trusted server CSR...\n"
-openssl req -x509 -nodes -newkey rsa:2048 -keyout ${TRUSTED}.priv -outform PEM \
- -out ${TRUSTED}.cert \
- -subj "/C=US/ST=Indiana/O=Purdue University/CN=Trusted Server/" 
-status
-
 # export trusted server public key to separate file
 openssl rsa -in ${TRUSTED}.priv -outform PEM -pubout -out ${TRUSTED}.pub
 status
 
-# create certificate signing request (CSR) file for untrusted server
-echo -e "\n===> Generating CSR of untrusted server...\n"
-openssl req -new -key ${UNTRUSTED}.priv \
- -subj "/C=US/ST=Indiana/O=Purdue University/CN=Untrusted Server/" \
-> ${UNTRUSTED}.cert.csr
+# trusted server acts as a CA and self-signs it's own cert
+echo -e "\n===> Self-signing trusted server cert"
+openssl req -new -x509  -days 365 -in ${TRUSTED}.cert.csr -key ${TRUSTED}.priv \
+ -out ${TRUSTED}.cert -subj "/C=US/ST=Indiana/O=Purdue University/CN=Trusted Server/" 
 status
 
 # trusted server signs the CSR
