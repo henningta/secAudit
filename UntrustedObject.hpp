@@ -23,7 +23,8 @@ private:
   EVP_PKEY *priv;
   EVP_PKEY *trustPub;
   std::string Aj;
-  
+  long int d_max;
+
 public:
 
   UntrustedObject();

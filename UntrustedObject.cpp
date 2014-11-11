@@ -41,7 +41,7 @@ Message UntrustedObject::createLog(const std::string & logName) {
 	std::string   			Cu;
 	std::string   			X0;
 	std::string			d;
-	std::string			d_limit;
+	std::string			d_max_str;
 	std::string			M0;
 	std::string			D0;
 	std::string			signedX0;
@@ -75,8 +75,9 @@ Message UntrustedObject::createLog(const std::string & logName) {
 	Cu = std::string((const char *) tmpBuf, CuLen);
 
 	// get current timestamp d and set d+
-	d = std::to_string( cryptsuite::getCurrentTimeStamp() );
-	d_limit = std::to_string( atol(&d[0]) + MAX_WAIT );
+	d_max = cryptsuite::getCurrentTimeStamp() + MAX_WAIT;
+	d = std::to_string(d_max - MAX_WAIT);
+	d_max_str = std::to_string(d_max);
 
 	// setup X0 - p, d, Cu, A0
 	X0 = p;
@@ -129,8 +130,8 @@ Message UntrustedObject::createLog(const std::string & logName) {
 
 	// form D0 - d, d+, IDlog, M0
 	D0 = d;
-	D0.replace(D0.length(), d_limit.length(),
-			(const char *) &d_limit[0], d_limit.length());
+	D0.replace(D0.length(), d_max_str.length(),
+			(const char *) &d_max_str[0], d_max_str.length());
 	D0.replace(D0.length(), logName.length(),
 			(const char *) &logName[0], logName.length());
 	D0.replace(D0.length(), M0.length(),

@@ -83,7 +83,6 @@ Message TrustedObject::verifyInitMessage(Message M0) {
 	unsigned char			*tmpBuf;
 	unsigned char			tmpFixedBuf[5000];
 	size_t				decBytes;
-	size_t				len;
 	size_t				X0Len;
 	size_t				cuLen;
 	X509				*untrustCert;
