@@ -7,6 +7,7 @@
 #include <vector>
 #include "cryptsuite.hpp"
 //Jackson Reed
+#define MSTATE_LEN 1
 
 enum MessageState {
 	VER_INIT_REQ,
