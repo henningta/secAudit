@@ -146,6 +146,18 @@ Message UntrustedObject::createLog(const std::string & logName) {
 
 	return msgFact.get_message();
 }
+/**
+* UntrustedObject::verifyInitResponse
+*
+* The final step of startup- verify M1
+*
+* @author      
+*/
+void UntrustedObject::verifyInitResponse() {
+
+	// TODO
+
+}
 
 /**
 * UntrustedObject::incrementAj

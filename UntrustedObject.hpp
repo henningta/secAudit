@@ -30,6 +30,7 @@ public:
   Message createLog(const std::string & logName);
   Message addEntry(const std::string & message);
   Message closeLog();
+  void verifyInitResponse(const std::string & message);
   void incrementAj();
   
   inline const std::string & getLogName() { return _log.getName(); }
