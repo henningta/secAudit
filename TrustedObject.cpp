@@ -133,7 +133,7 @@ Message TrustedObject::verifyInitMessage(Message M0) {
 	if ( ! cryptsuite::calcMD((unsigned char *) &decX0Data[0], X0Len, &tmpBuf) ) {
 		fprintf(fpErr, "Error: Could not hash X0\n");
 	}
-	hashedX0 = std::string((const char *) &hashedX0[0], MD_BYTES);
+	hashedX0 = std::string((const char *) tmpBuf, MD_BYTES);
 	delete[] tmpBuf;
 
 	X1 = p;
