@@ -8,7 +8,7 @@
 
 extern FILE* fpErr;
 
-UntrustedObject::UntrustedObject(){
+UntrustedObject::UntrustedObject() {
 	msgFact= MessageMaker(U_ID, MessageState::UNINITIALIZED);
 
 	// allocate memory for keys (mandatory)
@@ -20,7 +20,6 @@ UntrustedObject::UntrustedObject(){
 	cryptsuite::loadRSAPublicKey(UNTRUSTED_PUB, &pub);
 	cryptsuite::loadRSAPrivateKey(UNTRUSTED_PRIV, &priv);
 	cryptsuite::loadRSAPublicKey(TRUSTED_PUB, &trustPub);
-
 }
 
 /**
@@ -137,6 +136,7 @@ Message UntrustedObject::createLog(const std::string & logName) {
 	D0.replace(D0.length(), M0.length(),
 			(const char *) &M0[0], M0.length());
 
+	// set log name and open log
 	_log.setName(logName);
 	if (!_log.open(D0, Aj)) {
 		throw std::runtime_error("Open Log returned false");
@@ -188,7 +188,7 @@ void UntrustedObject::incrementAj() {
  */
 Message UntrustedObject::addEntry(const std::string & message) {
 	bool app = _log.append(message, Aj);
-	if (!app){
+	if (!app) {
 		throw std::runtime_error("Append Log returned false");
 	}
 
@@ -196,7 +196,6 @@ Message UntrustedObject::addEntry(const std::string & message) {
 	incrementAj();
 
 	return msgFact.get_message();
-
 }
 
 /**
@@ -209,14 +208,17 @@ Message UntrustedObject::addEntry(const std::string & message) {
  */
 Message UntrustedObject::closeLog() {
 	bool close = _log.close(Aj);
-	if (!close){
+	if (!close) {
 		throw std::runtime_error("Close Log returned false");
 	}
+
+	// insert entries vector into map of closed entries by log name
+	_closedLogEntries.insert(
+			std::make_pair(_log.getLogName(), _log.getEntries()));
 
 	// increment Aj key
 	incrementAj();
 
 	return msgFact.get_message();
-
 }
 

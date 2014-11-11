@@ -37,8 +37,10 @@ public:
 
 	inline bool isOpen() { return _logFile.is_open(); }
 	inline int getNumEntries() { return _logEntries.size(); }
+	inline std::string getLogName() { return _logName; }
 
 	LogEntry & getEntry(int pos) { return _logEntries.at(pos); }
+	std::vector<LogEntry> & getEntries() { return _logEntries; }
 };
 
 #endif // __LOG_HPP__

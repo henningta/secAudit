@@ -13,29 +13,35 @@
 #include "Log.hpp"
 #include "Message.hpp"
 #include "cryptsuite.hpp"
+#include <map>
 
+typedef std::map<std::string, std::vector<LogEntry>> ClosedLogEntries;
 
 class UntrustedObject {
 private:
-  Log _log;
-  MessageMaker msgFact;
-  EVP_PKEY *pub;
-  EVP_PKEY *priv;
-  EVP_PKEY *trustPub;
-  std::string Aj;
-  long int d_max;
+	Log					_log;
+	ClosedLogEntries	_closedLogEntries;
+	MessageMaker		msgFact;
+	EVP_PKEY 			*pub;
+	EVP_PKEY 			*priv;
+	EVP_PKEY 			*trustPub;
+	std::string 		Aj;
+	long int 			d_max;
 
 public:
+	UntrustedObject();
+	Message createLog(const std::string & logName);
+	Message addEntry(const std::string & message);
+	Message closeLog();
+	void verifyInitResponse(Message M1);
+	void incrementAj();
 
-  UntrustedObject();
-  Message createLog(const std::string & logName);
-  Message addEntry(const std::string & message);
-  Message closeLog();
-  void verifyInitResponse(Message M1);
-  void incrementAj();
-  
-  inline const std::string & getLogName() { return _log.getName(); }
-  inline int getNumEntries() { return _log.getNumEntries(); }
+	ClosedLogEntries & getClosedLogEntries() {
+		return _closedLogEntries;
+	}
+
+	inline const std::string & getLogName() { return _log.getName(); }
+	inline int getNumEntries() { return _log.getNumEntries(); }
 };
 
 #endif // __UNTRUSTED_OBJECT_HPP__
