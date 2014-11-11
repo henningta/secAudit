@@ -88,6 +88,7 @@ Message TrustedObject::verifyInitMessage(Message M0) {
 	X509				*untrustCert;
 
 	mkr = MessageMaker(T_ID, MessageState::VER_INIT_RESP);
+	mkr.clear_payload();
 
 	// obtain K0
 	tmpVector = M0.get_payload("ENCRYPTED_K0");
@@ -174,7 +175,6 @@ Message TrustedObject::verifyInitMessage(Message M0) {
 	M1.replace(M1.length(), encX1Data.length(),
 		(const char *) &encX1Data[0], encX1Data.length());
 
-	mkr.clear_payload();
 	mkr.set("M1", M1.length(), (unsigned char *) &M1[0]);
 
 	// add length markers for parsing later
