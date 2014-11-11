@@ -151,9 +151,9 @@ Message UntrustedObject::createLog(const std::string & logName) {
 *
 * The final step of startup- verify M1
 *
-* @author      
+* @author
 */
-void UntrustedObject::verifyInitResponse() {
+void UntrustedObject::verifyInitResponse(const std::string & message) {
 
 	// TODO
 

@@ -1,22 +1,20 @@
 #include "Log.hpp"
 #include "cryptsuite.hpp"
-#include <iostream>
 #include "utils.hpp"
 
-std::string entryTypeToString(EntryType type) {
-	std::string entryType;
+#include <iostream>
 
-	if (type == LOG_ENTRY_OPEN) {
-		entryType = "LOG_ENTRY_OPEN";
-	} else if (type == LOG_ENTRY_APPEND) {
-		entryType = "LOG_ENTRY_APPEND";
-	} else if (type == LOG_ENTRY_CLOSE) {
-		entryType = "LOG_ENTRY_CLOSE";
-	}
-
-	return entryType;
-}
-
+/**
+ *	hashTypeKey
+ *
+ *	Hashes log entry type concatenated with key Aj
+ *
+ *	@param 	type 	entry type of current LogEntry
+ *	@param 	keyAj 	key from TrustedObject derived by hashes of prev keys
+ *	@return string 	hash of type concatenated with key
+ *
+ *	@author Travis Henning
+ */
 std::string hashTypeKey(EntryType type, const std::string & keyAj) {
 	// entry type to string
 	std::string entryType = entryTypeToString(type);
@@ -35,6 +33,17 @@ std::string hashTypeKey(EntryType type, const std::string & keyAj) {
 	return hashedKey;
 }
 
+/**
+ *	encryptMessage
+ *
+ *	Encrypts string with symmetric key
+ *
+ *	@param 	message 	string to be encrypted
+ *	@param 	hashedKey 	key used to encrypt
+ *	@return string 		encrypted string result
+ *
+ *	@author Travis Henning
+ */
 std::string encryptMessage(const std::string & message,
 		const std::string & hashedKey) {
 	unsigned char *outSym = 0x0;
@@ -49,6 +58,18 @@ std::string encryptMessage(const std::string & message,
 	return encryptedMessage;
 }
 
+/**
+ *	hashY
+ *
+ *	Hash Yj value of log entry based on prev Yj, encrypted Dj, and Wj
+ *
+ *	@param 	prevY 				previous Yj (hashed) value
+ *	@param 	encryptedMessage 	encrypted Dj of current entry
+ *	@param 	entryType 			Wj value of current entry
+ *	@return string 				Yj (hashed) for current entry
+ *
+ *	@author Travis Henning
+ */
 std::string hashY(const std::string & prevY,
 		const std::string & encryptedMessage, EntryType entryType) {
 	std::string type = entryTypeToString(entryType);
@@ -68,6 +89,15 @@ std::string hashY(const std::string & prevY,
 	return hashedY;
 }
 
+/**
+ *	hashZ
+ *
+ *	@param 	Yj 		Yj (hashed) of current entry
+ *	@param 	keyAj 	current Aj key
+ *	@return string 	Zj (hashed) of current entry
+ *
+ *	@author Travis Henning
+ */
 std::string hashZ(const std::string & Yj, const std::string & keyAj) {
 	unsigned char *outHash = 0x0;
 	if (cryptsuite::calcHMAC(
@@ -89,7 +119,10 @@ std::string hashZ(const std::string & Yj, const std::string & keyAj) {
  * Opens file of specified name and adds an entry indicating the log has
  * been created
  *
- * @return 	bool
+ * @param 	D0 		message of first log entry
+ * @param 	A0 		key A0 for first entry
+ * @return 	bool 	success of open
+ *
  * @author 	Travis Henning
  */
 bool Log::open(const std::string & D0, const std::string & A0) {
@@ -101,35 +134,21 @@ bool Log::open(const std::string & D0, const std::string & A0) {
 
 	const EntryType ENTRY_TYPE = LOG_ENTRY_OPEN;
 
-	//std::string message = "Log file \"" + _logName + "\" created.";
-	std::string message = D0;
-
 	// create hash of entry type and key A to form symKey
-	std::string keyAj = A0;
-	std::string hashedKey = hashTypeKey(ENTRY_TYPE, keyAj);
+	std::string hashedKey = hashTypeKey(ENTRY_TYPE, A0);
 
 	// symEncrypt message with symKey created from hash
-	std::string encryptedMessage = encryptMessage(message, hashedKey);
+	std::string encryptedMessage = encryptMessage(D0, hashedKey);
 
 	// initialize Yj and Zj
 	_Yj = hashY("00000000000000000000", encryptedMessage, ENTRY_TYPE);
-	_Zj = hashZ(_Yj, keyAj);
-
-	std::string sizes =
-	  numToString<int>(entryTypeToString(ENTRY_TYPE).length())+
-          "|"+numToString<int>(encryptedMessage.length())+
-          "|"+numToString<int>(_Yj.length())+
-          "|"+numToString<int>(_Zj.length());
-
-	// concatenate items for entry
-	std::string concatenatedMessage =
-	  sizes + "|" + entryTypeToString(ENTRY_TYPE)
-	  + encryptedMessage + _Yj + _Zj;
+	_Zj = hashZ(_Yj, A0);
 
 	// add encrypted "open" entry to log
-	LogEntry entry(ENTRY_TYPE, concatenatedMessage);
+	LogEntry entry(ENTRY_TYPE, encryptedMessage, _Yj, _Zj);
 	_logEntries.push_back(entry);
 
+	// add concatenated message to log
 	_logFile << entry.getMessage();
 
 	return true;
@@ -141,7 +160,9 @@ bool Log::open(const std::string & D0, const std::string & A0) {
  * Closes current log file and adds an entry indicating the log has been
  * closed
  *
- * @return 	bool
+ * @param 	Aj 		current Aj key used in sym encryption
+ * @return 	bool 	success of close
+ *
  * @author 	Travis Henning
  */
 bool Log::close(const std::string & Aj) {
@@ -154,8 +175,7 @@ bool Log::close(const std::string & Aj) {
 	std::string message = "Log file \"" + _logName + "\" closed.";
 
 	// create hash of entry type and key A to form symKey
-	std::string keyAj = Aj;
-	std::string hashedKey = hashTypeKey(ENTRY_TYPE, keyAj);
+	std::string hashedKey = hashTypeKey(ENTRY_TYPE, Aj);
 
 	// symEncrypt message with symKey created from hash
 	std::string encryptedMessage = encryptMessage(message, hashedKey);
@@ -163,24 +183,13 @@ bool Log::close(const std::string & Aj) {
 	// initialize Yj and Zj
 	std::string prevY = _Yj;
 	_Yj = hashY(prevY, encryptedMessage, ENTRY_TYPE);
-	_Zj = hashZ(_Yj, keyAj);
-
-	std::string sizes = numToString<int>(entryTypeToString(ENTRY_TYPE).length())+
-          "|"+numToString<int>(encryptedMessage.length())+
-          "|"+numToString<int>(_Yj.length())+
-          "|"+numToString<int>(_Zj.length());
-
-
-
-	// concatenate items for entry
-	std::string concatenatedMessage = sizes+ "|"
-	  +  entryTypeToString(ENTRY_TYPE) +
-	  encryptedMessage + _Yj  + _Zj;
+	_Zj = hashZ(_Yj, Aj);
 
 	// add encrypted "close" entry to log
-	LogEntry entry(ENTRY_TYPE, concatenatedMessage);
+	LogEntry entry(ENTRY_TYPE, encryptedMessage, _Yj, _Zj);
 	_logEntries.push_back(entry);
 
+	// add concatenated message to log (on new line)
 	_logFile << '\n' << entry.getMessage();
 
 	_logFile.close();
@@ -193,10 +202,11 @@ bool Log::close(const std::string & Aj) {
  * Appends string message to open log file
  *
  * @param 	message 	the entry message to be appended
- * @return 	bool
+ * @param 	Aj 			current key Aj used in sym encryption
+ * @return 	bool 		success of append
  * @author 	Travis Henning
  */
-bool Log::append(const std::string & message, const std::string & A0) {
+bool Log::append(const std::string & message, const std::string & Aj) {
 	if (!_logFile.is_open()) {
 		return false;
 	}
@@ -204,8 +214,7 @@ bool Log::append(const std::string & message, const std::string & A0) {
 	const EntryType ENTRY_TYPE = LOG_ENTRY_APPEND;
 
 	// create hash of entry type and key A to form symKey
-	std::string keyAj = A0;
-	std::string hashedKey = hashTypeKey(ENTRY_TYPE, keyAj);
+	std::string hashedKey = hashTypeKey(ENTRY_TYPE, Aj);
 
 	// symEncrypt message with symKey created from hash
 	std::string encryptedMessage = encryptMessage(message, hashedKey);
@@ -213,20 +222,13 @@ bool Log::append(const std::string & message, const std::string & A0) {
 	// initialize Yj and Zj
 	std::string prevY = _Yj;
 	_Yj = hashY(prevY, encryptedMessage, ENTRY_TYPE);
-	_Zj = hashZ(_Yj, keyAj);
-
-	// concatenate items for entry
-	std::string sizes = numToString<int>(entryTypeToString(ENTRY_TYPE).length())+
-	  "|"+numToString<int>(encryptedMessage.length())+
-	  "|"+numToString<int>(_Yj.length())+
-	  "|"+numToString<int>(_Zj.length());
-
-	std::string concatenatedMessage =sizes + "|" +  entryTypeToString(ENTRY_TYPE) + encryptedMessage +  _Yj  + _Zj;
+	_Zj = hashZ(_Yj, Aj);
 
 	// add encrypted "append" entry to log
-	LogEntry entry(ENTRY_TYPE, concatenatedMessage);
+	LogEntry entry(ENTRY_TYPE, encryptedMessage, _Yj, _Zj);
 	_logEntries.push_back(entry);
 
+	// add concatenated message to log (on new line)
 	_logFile << '\n' << entry.getMessage();
 
 	return true;

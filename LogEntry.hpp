@@ -19,16 +19,30 @@ enum EntryType {
 	LOG_ENTRY_APPEND
 };
 
+std::string entryTypeToString(EntryType type);
+
 class LogEntry {
 private:
 	EntryType 	_entryType;
-	std::string _message;
+	std::string _encryptedDj;
+	std::string _Yj;
+	std::string _Zj;
 public:
-	LogEntry(EntryType entryType, std::string message)
-		: _entryType(entryType), _message(message) {}
+	LogEntry(EntryType entryType, std::string encryptedDj, std::string Yj,
+			std::string Zj)
+		: _entryType(entryType), _encryptedDj(encryptedDj),
+		_Yj(Yj), _Zj(Zj) {}
 
 	inline EntryType getEntryType() const { return _entryType; }
-	inline std::string getMessage() const { return _message; }
+	inline std::string getEncryptedDj() const { return _encryptedDj; };
+	inline std::string getYj() const { return _Yj; };
+	inline std::string getZj() const { return _Zj; };
+
+	std::string getMessage() const {
+		return entryTypeToString(_entryType) +
+			_encryptedDj + _Yj + _Zj;
+	}
 };
 
 #endif // __LOG_ENTRY_HPP__
+
