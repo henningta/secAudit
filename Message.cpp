@@ -94,7 +94,7 @@ MessageMaker::set_sign(std::string name, size_t leng ,unsigned char * unencrypte
 void
 MessageMaker::set(std::string name, size_t leng ,unsigned char * unencrypted){
 	PayLoad pay;
-	pay.payload.reset(new unsigned char[leng+1]);
+	pay.payload.reset(new unsigned char[leng+1]());
 	memcpy(pay.payload.get(),unencrypted,leng);
 	pay.len=leng;
 	msg.payloads[name]=pay;
