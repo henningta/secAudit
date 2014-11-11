@@ -1,6 +1,23 @@
 #include "Log.hpp"
 #include "cryptsuite.hpp"
 #include <iostream>
+#include "utils.hpp"
+
+std::string Log::getEntry(int n){
+  std::string ret="";
+  //flush ofstream
+
+  //save sposition of ofstream
+
+  //seek
+
+
+  //return value and topos
+
+
+  return ret;
+}
+
 
 std::string entryTypeToString(EntryType type) {
 	std::string entryType;
@@ -114,9 +131,16 @@ bool Log::open(const std::string & D0, const std::string & A0) {
 	_Yj = hashY("00000000000000000000", encryptedMessage, ENTRY_TYPE);
 	_Zj = hashZ(_Yj, keyAj);
 
+	std::string sizes = 
+	  numToString<int>(entryTypeToString(ENTRY_TYPE).length())+
+          "|"+numToString<int>(encryptedMessage.length())+
+          "|"+numToString<int>(_Yj.length())+
+          "|"+numToString<int>(_Zj.length());
+
 	// concatenate items for entry
-	std::string concatenatedMessage = entryTypeToString(ENTRY_TYPE) +
-		"||" + encryptedMessage + "||" + _Yj + "||" + _Zj;
+	std::string concatenatedMessage = 
+	  sizes + "|" + entryTypeToString(ENTRY_TYPE)
+	  + encryptedMessage + _Yj + _Zj;
 
 	// add encrypted "open" entry to log
 	LogEntry entry(ENTRY_TYPE, concatenatedMessage);
@@ -157,9 +181,17 @@ bool Log::close(const std::string & Aj) {
 	_Yj = hashY(prevY, encryptedMessage, ENTRY_TYPE);
 	_Zj = hashZ(_Yj, keyAj);
 
+	std::string sizes = numToString<int>(entryTypeToString(ENTRY_TYPE).length())+
+          "|"+numToString<int>(encryptedMessage.length())+
+          "|"+numToString<int>(_Yj.length())+
+          "|"+numToString<int>(_Zj.length());
+	
+
+
 	// concatenate items for entry
-	std::string concatenatedMessage = entryTypeToString(ENTRY_TYPE) +
-		"||" + encryptedMessage + "||" + _Yj + "||" + _Zj;
+	std::string concatenatedMessage = sizes+ "|" 
+	  +  entryTypeToString(ENTRY_TYPE) +
+	  encryptedMessage + _Yj  + _Zj;
 
 	// add encrypted "close" entry to log
 	LogEntry entry(ENTRY_TYPE, concatenatedMessage);
@@ -200,8 +232,12 @@ bool Log::append(const std::string & message, const std::string & A0) {
 	_Zj = hashZ(_Yj, keyAj);
 
 	// concatenate items for entry
-	std::string concatenatedMessage = entryTypeToString(ENTRY_TYPE) +
-		"||" + encryptedMessage + "||" + _Yj + "||" + _Zj;
+	std::string sizes = numToString<int>(entryTypeToString(ENTRY_TYPE).length())+
+	  "|"+numToString<int>(encryptedMessage.length())+
+	  "|"+numToString<int>(_Yj.length())+
+	  "|"+numToString<int>(_Zj.length());
+
+	std::string concatenatedMessage =sizes + "|" +  entryTypeToString(ENTRY_TYPE) + encryptedMessage +  _Yj  + _Zj;
 
 	// add encrypted "append" entry to log
 	LogEntry entry(ENTRY_TYPE, concatenatedMessage);

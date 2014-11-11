@@ -13,13 +13,26 @@
 #include "Log.hpp"
 #include "TrustedObject.hpp"
 #include "UntrustedObject.hpp"
+#include "Message.hpp"
 
 class VerificationObject {
+
+private:
+  MessageMaker mkr;
 public:
-	void connectWith(TrustedObject & trustedObject);		// TODO
-	void connectWith(UntrustedObject & untrustedObject);	// TODO
-	void verifyEntry(Log & log);							// TODO
-	void verifyAll(); 										// TODO
+
+  Message
+  verifyEntryStart(Log & log , int n);
+
+  Message
+  verifyEntryTwo(Log & log , int n);
+
+  Message
+  verifyAllStart(Log & log);
+
+  Message
+  verifyAllTwo(Log & log);
+
 };
 
 #endif // __VERIFICATION_OBJECT_HPP__

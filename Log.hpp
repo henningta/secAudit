@@ -27,7 +27,7 @@ private:
 public:
 	Log() {}
 	Log(std::string logName) : _logName(logName) {}
-
+  std::string getEntry(int n);
 	inline const std::string & getName() const { return _logName; }
 	inline void setName(const std::string & logName) { _logName = logName; }
 

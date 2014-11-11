@@ -31,18 +31,10 @@ void do_command(
       } else {
 	untrustedObject.createLog(cmdTokens[1]);
 	  std::cout << "Created " << cmdTokens[2] << "\n";
-	//TODO: try catch
-	//} else {
-	//std::cout << "Log creation failed.\n";
-	  //}
       }
     } else if(cmdTokens.size()==2) {
       untrustedObject.createLog(cmdTokens[1]);
 	std::cout << "Created " << cmdTokens[1] << "\n";
-      //} else {
-      //TODO: try catch
-      //std::cout << "Log creation failed.\n";
-	//}
     } else {
       std::cout << help;
     }
@@ -56,30 +48,18 @@ void do_command(
 	  std::cout << "Added log entry number "
 	    + numToString(untrustedObject.getNumEntries())
 	    + "\n";
-	  //TODO: TRY catch
-	  //} else {
-	  //std::cout << "Add entry failed.\n";
-	  //}
       }
     } else if(cmdTokens.size() == 2) {
       untrustedObject.addEntry(cmdTokens[1]);
 	std::cout << "Added log entry number "
 	  + numToString(untrustedObject.getNumEntries())
 	  + "\n";
-	//} else {
-	//TODO:try catch
-	//std::cout << "Add entry failed.\n";
-	//}
     } else {
       std::cout << help;
     }
   } else if ((pos=cmd.find("closelog")) != std::string::npos) {
     untrustedObject.closeLog();
       std::cout << "Closed " + untrustedObject.getLogName() + "\n";
-      //} else {
-      //TODO:try catch
-      //std::cout << "Log already closed.\n";
-      //}
   } else if ((pos=cmd.find("verify")) != std::string::npos) {
     std::vector<std::string> cmdTokens = split(cmd, ' ');
     std::cout << "verify :" << cmdTokens[2] << "\n";
@@ -110,7 +90,6 @@ void do_command(
     }
   } else {
     std::cout << help;
-    //throw (20);
   }
   
 }
