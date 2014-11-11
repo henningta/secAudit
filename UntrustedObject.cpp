@@ -153,7 +153,7 @@ Message UntrustedObject::createLog(const std::string & logName) {
 *
 * @author      
 */
-void UntrustedObject::verifyInitResponse() {
+void UntrustedObject::verifyInitResponse(Message M1) {
 
 	// TODO
 
