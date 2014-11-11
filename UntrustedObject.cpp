@@ -47,6 +47,7 @@ Message UntrustedObject::createLog(const std::string & logName) {
 	std::string			signedX0;
 	std::string			X0DataSig;
 	std::string			encX0Data;
+	std::string			tmpStr;
 	Message				M0part;
 	std::vector<unsigned char>	tmpVector;
 	size_t				CuLen;
@@ -94,11 +95,11 @@ Message UntrustedObject::createLog(const std::string & logName) {
 	tmpVector = M0part.get_payload("SIGNED_X0");
 	signedX0 = std::string(tmpVector.begin(), tmpVector.end());
 
+	//EK0( X0 || signedX0)
 	X0DataSig = X0;
 	X0DataSig.replace(X0DataSig.length(), signedX0.length(),
 			(const char *) &signedX0[0], signedX0.length());
 
-	// encrypt signed X0 data
 	msgFact.set_symencrypt("ENCRYPTED_X0_DATA", X0DataSig.length(),
 			(unsigned char *) &X0DataSig[0], (unsigned char *) &K0[0]);
 
@@ -117,6 +118,14 @@ Message UntrustedObject::createLog(const std::string & logName) {
 			(const char *) &encX0Data[0], encX0Data.length());
 
 	msgFact.set("M0", M0.length(), (unsigned char *) &M0[0]);
+
+  	// add length markers for parsing later
+        tmpStr = std::to_string(encX0Data.length());
+        msgFact.set("ENCRYPTED_X0_DATA_LEN", tmpStr.length(), (unsigned char *) &tmpStr[0]);
+        tmpStr = std::to_string(CuLen);
+        msgFact.set("CULEN", tmpStr.length(), (unsigned char *) &tmpStr[0]);
+        tmpStr = std::to_string(X0.length());
+        msgFact.set("X0LEN", tmpStr.length(), (unsigned char *) &tmpStr[0]);
 
 	// form D0 - d, d+, IDlog, M0
 	D0 = d;
