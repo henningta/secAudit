@@ -8,7 +8,8 @@
 extern FILE* fpErr;
 
 TrustedObject::TrustedObject() {
-	
+
+
 	// add keys
 	pub = EVP_PKEY_new();
 	priv = EVP_PKEY_new();
@@ -17,7 +18,7 @@ TrustedObject::TrustedObject() {
 	cryptsuite::loadRSAPublicKey(TRUSTED_PUB, &pub);
 	cryptsuite::loadRSAPrivateKey(TRUSTED_PRIV, &priv);
 	cryptsuite::loadRSAPublicKey(UNTRUSTED_PUB, &untrustPub);
-	mkr.set_ID(T_ID);
+
 
 	// load trusted certificate
 	if ( ! cryptsuite::loadX509Cert(TRUSTED_CERT, &CA) ) {
@@ -71,7 +72,18 @@ int TrustedObject::verifyCertificate(X509 *cert) {
 Message TrustedObject::verifyInitMessage(Message M0) {
 	std::vector<unsigned char> 	tmpVector;
 	std::string			K0;
+	std::string			K1;
+	std::string			X1;
+	std::string			encK1;
+	std::string			signedX1;
+	std::string			X1DataSig;
+	std::string			encX1Data;
 	std::string			decX0Data;
+	std::string			p;
+	std::string			hashedX0;
+	std::string			M1;
+	std::string			tmpStr;
+	Message				M1part;
 	unsigned char			*tmpBuf;
 	unsigned char			tmpFixedBuf[5000];
 	size_t				decBytes;
@@ -79,6 +91,8 @@ Message TrustedObject::verifyInitMessage(Message M0) {
 	size_t				X0Len;
 	size_t				cuLen;
 	X509				*untrustCert;
+
+	mkr = MessageMaker(T_ID, MessageState::VER_INIT_RESP);
 
 	// obtain K0
 	tmpVector = M0.get_payload("ENCRYPTED_K0");
@@ -117,15 +131,63 @@ Message TrustedObject::verifyInitMessage(Message M0) {
 	// read in A0
 	_keyA0 = std::string((const char *) &decX0Data[0] + MSTATE_LEN + TSTMP_LEN + cuLen, AUTH_KEY_LEN);
 
-	// form X1 - p, IDlog, hash(X0)
-	// generate random key K1 and encrypt it
-	// sign X1
-	// EK1(encrypt X1 || signedX1)
-	// form M1
-	
-	mkr.set_ID(T_ID);
+	// form X1 - p, hash(X0) TODO: How does T know IDLog?!
 	mkr.set_MessageState(MessageState::VER_INIT_RESP);
-	//mkr.clear_payload();
+	p = std::to_string(VER_INIT_RESP);
+
+	if ( ! cryptsuite::calcMD((unsigned char *) &decX0Data[0], X0Len, &tmpBuf) ) {
+		fprintf(fpErr, "Error: Could not hash X0\n");
+	}
+	hashedX0 = std::string((const char *) &hashedX0[0], MD_BYTES);
+	delete tmpBuf;
+
+	X1 = p;
+	X1.replace(X1.length(), MD_BYTES, (const char *) &hashedX0[0], MD_BYTES);
+	
+	// generate random key K1 and encrypt it
+	cryptsuite::genRandBytes(tmpFixedBuf, SESSION_KEY_LEN);
+	K1 = std::string((const char *) tmpFixedBuf, SESSION_KEY_LEN);
+	mkr.set_pkencrypt("ENCRYPTED_K1", SESSION_KEY_LEN,
+			(unsigned char *) &K1[0], untrustPub);
+
+	// sign X1
+	mkr.set_sign("SIGNED_X1", X1.length(), (unsigned char *) &X1[0], priv);
+		
+	// EK1(encrypt X1 || signedX1)
+	M1part = mkr.get_message();
+	tmpVector = M1part.get_payload("SIGNED_X1");
+	signedX1 = std::string(tmpVector.begin(), tmpVector.end());
+
+	X1DataSig = X1;
+	X1DataSig.replace(X1DataSig.length(), signedX1.length(),
+			(const char *) &signedX1[0], signedX1.length());
+
+	mkr.set_symencrypt("ENCRYPTED_X1_DATA", X1DataSig.length(),
+			(unsigned char *) &X1DataSig[0], (unsigned char *) &K1[0]);
+
+	// form M1
+	M1part = mkr.get_message();
+	tmpVector = M1part.get_payload("ENCRYPTED_K1");
+	encK1 = std::string(tmpVector.begin(), tmpVector.end());
+	tmpVector = M1part.get_payload("ENCRYPTED_X1_DATA");
+	encX1Data = std::string(tmpVector.begin(), tmpVector.end());
+	
+	M1 = p;
+	M1.replace(M1.length(), strlen(T_ID), T_ID, strlen(T_ID));
+	M1.replace(M1.length(), encK1.length(),
+		(const char *) &encK1[0], encK1.length());
+	M1.replace(M1.length(), encX1Data.length(),
+		(const char *) &encX1Data[0], encX1Data.length());
+
+	mkr.clear_payload();
+	mkr.set("M1", M1.length(), (unsigned char *) &M1[0]);
+
+	// add length markers for parsing later
+	tmpStr = std::to_string(encX1Data.length());
+        mkr.set("ENCRYPTED_X1_DATA_LEN", tmpStr.length(), (unsigned char *) &tmpStr[0]);
+        tmpStr = std::to_string(X1.length());
+        mkr.set("X1LEN", tmpStr.length(), (unsigned char *) &tmpStr[0]);
+
 
 	return mkr.get_message();
 }
