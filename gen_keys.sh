@@ -7,8 +7,7 @@
 # *.cert.csr    - certificate signing request
 # *.cert        - signed certificate
 #
-# N.B:  Public keys are in X.509 style and pivate keys are in
-#       the "traditional" or "SSLeay" format
+# N.B:  Keys are in PEM format
 #
 # author(s)	Travis Henning, Timothy Thong
 
@@ -50,11 +49,8 @@ status
 
 # generate trusted server keys and CSR
 
-echo -e "\n===> Generating keys for trusted server CSR...\n"
+echo -e "\n===> Generating keys for trusted server...\n"
 openssl genrsa -out ${TRUSTED}.priv 2048
-status
-
-openssl rsa -in ${TRUSTED}.priv -outform PEM -pubout -out ${TRUSTED}.pub
 status
 
 # export trusted server public key to separate file
