@@ -91,11 +91,11 @@ Message UntrustedObject::createLog(const std::string & logName) {
 	msgFact.set_pkencrypt("ENCRYPTED_K0", SESSION_KEY_LEN,
 			(unsigned char *) &K0[0], trustPub);
 
+	//EK0( X0 || signedX0)
 	M0part = msgFact.get_message();
 	tmpVector = M0part.get_payload("SIGNED_X0");
 	signedX0 = std::string(tmpVector.begin(), tmpVector.end());
 
-	//EK0( X0 || signedX0)
 	X0DataSig = X0;
 	X0DataSig.replace(X0DataSig.length(), signedX0.length(),
 			(const char *) &signedX0[0], signedX0.length());
