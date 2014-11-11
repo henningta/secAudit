@@ -9,7 +9,6 @@ extern FILE* fpErr;
 
 TrustedObject::TrustedObject() {
 
-
 	// add keys
 	pub = EVP_PKEY_new();
 	priv = EVP_PKEY_new();
@@ -18,7 +17,6 @@ TrustedObject::TrustedObject() {
 	cryptsuite::loadRSAPublicKey(TRUSTED_PUB, &pub);
 	cryptsuite::loadRSAPrivateKey(TRUSTED_PRIV, &priv);
 	cryptsuite::loadRSAPublicKey(UNTRUSTED_PUB, &untrustPub);
-
 
 	// load trusted certificate
 	if ( ! cryptsuite::loadX509Cert(TRUSTED_CERT, &CA) ) {
@@ -61,11 +59,10 @@ int TrustedObject::verifyCertificate(X509 *cert) {
 /**
  * UntrustedObject::verifyInitMessage
  *
- * Creates a log of the given name by calling its _log member's open
- * function
+ * Verifies M0 and sends back M1
  *
- * @param       cert	X509 cert
- * @return      	1 if verified, other values otherwise
+ * @param       M0	Message from UntrustedObject
+ * @return      	M1
  * @author      	Timothy Thong, Jackson Reed
  */
 Message TrustedObject::verifyInitMessage(Message M0) {
