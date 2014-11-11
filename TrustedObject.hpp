@@ -11,6 +11,8 @@
  */
 
 #include <string>
+#include <openssl/safestack.h>
+#include <openssl/x509_vfy.h>
 #include "Message.hpp"
 #include "cryptsuite.hpp"
 
@@ -18,17 +20,17 @@ class TrustedObject {
 private:
   std::string _keyA0;
   Message M0;
-  EVP_PKEY * mPublic;
-  EVP_PKEY * mPrivate;
-  std::map< std::string , EVP_PKEY * > keyTable;
+  EVP_PKEY *pub;
+  EVP_PKEY *priv;
+  EVP_PKEY *untrustPub;
+  X509_STORE_CTX *ctx;
+  X509 *CA;
+  X509_STORE *store;
 
 public:
   TrustedObject();
-  //ID needs to be unique!
-  //TODO:
-  void addPublicKeys(std::string ID, EVP_PKEY * PublicKey);
-
   Message verifyInitMessage(Message M0);
+  int verifyCertificate(X509 *cert);
 
 private:
   MessageMaker mkr;
