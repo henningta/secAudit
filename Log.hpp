@@ -16,6 +16,11 @@
 
 #include "LogEntry.hpp"
 
+std::string hashY(const std::string & prevY,
+		  const std::string & encryptedMessage, 
+		  EntryType entryType);
+
+
 class Log {
 private:
 	std::ofstream 			_logFile;

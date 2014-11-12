@@ -16,6 +16,8 @@
 // ID strings of servers
 #define T_ID			"Trusted_Server"
 #define U_ID			"Untrusted_Server"
+#define V_ID                    "Verification_Server"
+
 
 // locations of keys and certs
 #define TRUSTED_PRIV		"keys/trusted.priv"

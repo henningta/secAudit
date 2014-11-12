@@ -13,6 +13,10 @@ enum MessageState {
 	VER_INIT_REQ,
 	VER_INIT_RESP,
 	BAD_REQUEST,
+	VER_N_START,
+	VER_N_RESP,
+	VER_START,
+	VER_RESP,	
 	UNINITIALIZED
 }; //this is refered to as "p" in the paper
 
