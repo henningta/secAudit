@@ -1,6 +1,7 @@
 #include "UntrustedObject.hpp"
 #include "debug.hpp"
 #include "Message.hpp"
+#include "Common.hpp"
 #include <chrono>
 #include <ctime>
 #include <sstream>
@@ -267,15 +268,7 @@ err:
 * @author      Timothy Thong
 */
 void UntrustedObject::incrementAj() {
-
-  	unsigned char *newKey;
-	
-	if ( cryptsuite::calcMD((unsigned char *) &Aj[0], AUTH_KEY_LEN, &newKey) ) {
-		Aj.replace(0, AUTH_KEY_LEN, (const char *) newKey, AUTH_KEY_LEN);
-  		delete[] newKey;
-	} else {
-		fprintf(fpErr, "Error: Failed to increment Aj\n");
-	}
+	Aj = Common::incrementHash(Aj, 1);
 }
 
 /**

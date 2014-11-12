@@ -215,4 +215,3 @@ Message TrustedObject::verifyInitMessage(Message M0) {
 	return mkr.get_message();
 }
 
-
