@@ -186,7 +186,8 @@ void UntrustedObject::verifyInitResponse(Message M1) {
         std::string                     hashedX0;
         unsigned char 			*tmpBuf;
         size_t                          decBytes;
-        //size_t                          X1Len;
+        size_t                          X1Len;
+	bool				close_log;
 
         tmpVector = M1.get_payload("ENCRYPTED_K1");
 
@@ -194,6 +195,8 @@ void UntrustedObject::verifyInitResponse(Message M1) {
         if ( ! cryptsuite::pkDecrypt((unsigned char *) &tmpVector[0], 
 					tmpVector.size(), &tmpBuf, priv) ) {
                 fprintf(fpErr, "Error: Could not decrypt K1\n");
+		close_log = true;
+		goto err;
         }
         K1 = std::string((const char *) tmpBuf, SESSION_KEY_LEN);
         delete[] tmpBuf;
@@ -205,7 +208,8 @@ void UntrustedObject::verifyInitResponse(Message M1) {
 
         if (decBytes <= 0) {
                 fprintf(fpErr, "Error: Failed to decrypt X1DATASIG\n");
-		// TODO : Stop here?
+		close_log = true;
+		goto err;
         }
 
         decX1Data = std::string((const char *) tmpBuf, decBytes);
@@ -214,7 +218,15 @@ void UntrustedObject::verifyInitResponse(Message M1) {
         // verify X1 - p, TODO: IDlog?!, hashedX0
         tmpVector = M1.get_payload("X1LEN");
         tmpVector.push_back('\0');
-        //X1Len = atoi((const char *) &tmpVector[0]);
+        X1Len = atoi((const char *) &tmpVector[0]);
+
+	// verify X1
+	if ( ! cryptsuite::verifySignature((unsigned char *) &decX1Data[0], X1Len, 
+					(unsigned char *) &decX1Data[0] + X1Len, trustPub) ) {
+		fprintf(fpErr, "Error: Could not verify X1\n");
+		close_log = true;
+		goto err;
+	}
 
         // obtain hashedX0
         hashedX0 = std::string((const char *) &decX1Data[0] + MSTATE_LEN, MD_BYTES);
@@ -222,19 +234,29 @@ void UntrustedObject::verifyInitResponse(Message M1) {
 	// verify hashedX0 with own copy
 	if ( trustedHashedX0.compare(hashedX0) != 0 ) {
 		fprintf(fpErr, "Error: Hash verification failed\n");
-		// TODO : Stop here?
+		close_log = true;
+		goto err;
 	}
 
         // message is stale
         if (cryptsuite::getCurrentTimeStamp() > d_max) {
 		fprintf(fpErr, "Received stale response from T\n");
-                // TODO:
+		close_log = true;
+		goto err;
         }
 
 	/* DEBUG 
         first4Last4("verifyResp K1", (unsigned char *) &K1[0], SESSION_KEY_LEN);
         first4Last4("verifyResp X1||signedX1", (unsigned char *) &decX1Data[0], decX1Data.length());
 	*/
+
+err:
+	// abnormal close type according to spec
+	if (close_log) {
+		
+		// TODO: Abnormal close
+	}
+
 }
 
 /**
