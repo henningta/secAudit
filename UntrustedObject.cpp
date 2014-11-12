@@ -68,6 +68,7 @@ Message UntrustedObject::createLog(const std::string & logName) {
 	// load X509 cert and re-encode to DER
 	if ( ! cryptsuite::loadX509Cert(UNTRUSTED_CERT, &pemCert) ) {
 		fprintf(fpErr, "Error: Could not load U's cert\n");
+		// TODO: Stop here?
 	}
 	CuLen = cryptsuite::x509ToDer(pemCert, &tmpBuf);
 	tmpBuf = tmpBuf - CuLen;
@@ -85,11 +86,17 @@ Message UntrustedObject::createLog(const std::string & logName) {
 	X0.replace(X0.length(), AUTH_KEY_LEN, (const char *) &A0[0], AUTH_KEY_LEN);
 
 	// sign X0
-	msgFact.set_sign("SIGNED_X0", X0.length(), (unsigned char *) &X0[0], priv);
+	if ( ! msgFact.set_sign("SIGNED_X0", X0.length(), (unsigned char *) &X0[0], priv) ) {
+		fprintf(fpErr, "Error: Could not sign X0\n");
+		// TODO: Stop here?
+	}
 
 	// encrypt K0
-	msgFact.set_pkencrypt("ENCRYPTED_K0", SESSION_KEY_LEN,
-			(unsigned char *) &K0[0], trustPub);
+	if ( ! msgFact.set_pkencrypt("ENCRYPTED_K0", SESSION_KEY_LEN, 
+					(unsigned char *) &K0[0], trustPub) ) {
+		fprintf(fpErr, "Error: Could not encrypt K0\n");
+		// TODO: Stop here?
+	}
 
 	//EK0( X0 || signedX0)
 	M0part = msgFact.get_message();
@@ -100,8 +107,11 @@ Message UntrustedObject::createLog(const std::string & logName) {
 	X0DataSig.replace(X0DataSig.length(), signedX0.length(),
 			(const char *) &signedX0[0], signedX0.length());
 
-	msgFact.set_symencrypt("ENCRYPTED_X0_DATA", X0DataSig.length(),
-			(unsigned char *) &X0DataSig[0], (unsigned char *) &K0[0]);
+	if ( ! msgFact.set_symencrypt("ENCRYPTED_X0_DATA", X0DataSig.length(),
+			(unsigned char *) &X0DataSig[0], (unsigned char *) &K0[0]) ) {
+		fprintf(fpErr, "Error: Could not do symmetric encryption\n");
+		// TODO: Stop here?
+	}
 
 	// form M0 - p, IDu, Pk(K0), Ek(X0, signedX0)
 	M0part = msgFact.get_message();
@@ -142,8 +152,22 @@ Message UntrustedObject::createLog(const std::string & logName) {
 		throw std::runtime_error("Open Log returned false");
 	}
 
+	// update own copy of hashedX0
+	if ( ! cryptsuite::calcMD((unsigned char *) &X0[0], X0.length(), &tmpBuf) ) {
+		fprintf(fpErr, "Failed to calculate hash of X0\n");
+		// TODO: Stop here?
+	}
+	trustedHashedX0 = std::string((const char *) tmpBuf, MD_BYTES);
+
 	// increment Aj key
 	incrementAj();
+
+	/* DEBUG
+        first4Last4("createLog K0", (unsigned char *) &K0[0], SESSION_KEY_LEN);
+        first4Last4("createLog A0", (unsigned char *) &A0[0], AUTH_KEY_LEN);
+        first4Last4("createLog X0", (unsigned char *) &X0[0], X0.length() );
+        first4Last4("createLog X0||signedX0", (unsigned char *) &X0DataSig[0], X0DataSig.length());  
+	*/
 
 	return msgFact.get_message();
 }
@@ -156,8 +180,61 @@ Message UntrustedObject::createLog(const std::string & logName) {
 */
 void UntrustedObject::verifyInitResponse(Message M1) {
 
-	// TODO
+	std::vector<unsigned char>      tmpVector;
+        std::string                     K1;
+        std::string                     decX1Data;
+        std::string                     hashedX0;
+        unsigned char 			*tmpBuf;
+        size_t                          decBytes;
+        //size_t                          X1Len;
 
+        tmpVector = M1.get_payload("ENCRYPTED_K1");
+
+        // obtain K1
+        if ( ! cryptsuite::pkDecrypt((unsigned char *) &tmpVector[0], 
+					tmpVector.size(), &tmpBuf, priv) ) {
+                fprintf(fpErr, "Error: Could not decrypt K1\n");
+        }
+        K1 = std::string((const char *) tmpBuf, SESSION_KEY_LEN);
+        delete[] tmpBuf;
+
+        // obtain X1 || signedX1
+        tmpVector = M1.get_payload("ENCRYPTED_X1_DATA");
+        decBytes = cryptsuite::symDecrypt((unsigned char *) &tmpVector[0], 
+					tmpVector.size(),&tmpBuf, (unsigned char *) &K1[0]);
+
+        if (decBytes <= 0) {
+                fprintf(fpErr, "Error: Failed to decrypt X1DATASIG\n");
+		// TODO : Stop here?
+        }
+
+        decX1Data = std::string((const char *) tmpBuf, decBytes);
+        delete[] tmpBuf;
+
+        // verify X1 - p, TODO: IDlog?!, hashedX0
+        tmpVector = M1.get_payload("X1LEN");
+        tmpVector.push_back('\0');
+        //X1Len = atoi((const char *) &tmpVector[0]);
+
+        // obtain hashedX0
+        hashedX0 = std::string((const char *) &decX1Data[0] + MSTATE_LEN, MD_BYTES);
+
+	// verify hashedX0 with own copy
+	if ( trustedHashedX0.compare(hashedX0) != 0 ) {
+		fprintf(fpErr, "Error: Hash verification failed\n");
+		// TODO : Stop here?
+	}
+
+        // message is stale
+        if (cryptsuite::getCurrentTimeStamp() > d_max) {
+		fprintf(fpErr, "Received stale response from T\n");
+                // TODO:
+        }
+
+	/* DEBUG 
+        first4Last4("verifyResp K1", (unsigned char *) &K1[0], SESSION_KEY_LEN);
+        first4Last4("verifyResp X1||signedX1", (unsigned char *) &decX1Data[0], decX1Data.length());
+	*/
 }
 
 /**
@@ -170,10 +247,13 @@ void UntrustedObject::verifyInitResponse(Message M1) {
 void UntrustedObject::incrementAj() {
 
   	unsigned char *newKey;
-	cryptsuite::calcMD((unsigned char *) &Aj[0], AUTH_KEY_LEN, &newKey);
-  	Aj.replace(0, AUTH_KEY_LEN, (const char *) newKey, AUTH_KEY_LEN);
-
-  	delete[] newKey;
+	
+	if ( cryptsuite::calcMD((unsigned char *) &Aj[0], AUTH_KEY_LEN, &newKey) ) {
+		Aj.replace(0, AUTH_KEY_LEN, (const char *) newKey, AUTH_KEY_LEN);
+  		delete[] newKey;
+	} else {
+		fprintf(fpErr, "Error: Failed to increment Aj\n");
+	}
 }
 
 /**

@@ -100,6 +100,11 @@ Message TrustedObject::verifyInitMessage(Message M0) {
 	tmpVector = M0.get_payload("ENCRYPTED_X0_DATA");
 	decBytes = cryptsuite::symDecrypt((unsigned char *) &tmpVector[0], tmpVector.size(),
 						&tmpBuf, (unsigned char *) &K0[0]); 
+
+	if (decBytes <= 0) {
+		fprintf(fpErr, "Failed to decrypt X0DATASIG\n");
+		// TODO: Stop here?
+	}
 	decX0Data = std::string((const char *) tmpBuf, decBytes);
 	delete[] tmpBuf;
 
@@ -122,6 +127,7 @@ Message TrustedObject::verifyInitMessage(Message M0) {
 	// verify cert
 	if ( ! verifyCertificate(untrustCert) ) {
 		fprintf(fpErr, "Error: Certificate verification failed\n");
+		// TODO: Stop here?
 	}
 
 	// read in A0
@@ -143,11 +149,18 @@ Message TrustedObject::verifyInitMessage(Message M0) {
 	// generate random key K1 and encrypt it
 	cryptsuite::genRandBytes(tmpFixedBuf, SESSION_KEY_LEN);
 	K1 = std::string((const char *) tmpFixedBuf, SESSION_KEY_LEN);
-	mkr.set_pkencrypt("ENCRYPTED_K1", SESSION_KEY_LEN,
-			(unsigned char *) &K1[0], untrustPub);
+
+	if ( ! mkr.set_pkencrypt("ENCRYPTED_K1", SESSION_KEY_LEN,
+			(unsigned char *) &K1[0], untrustPub) ) {
+		fprintf(fpErr, "Error could not encrypt K1\n");
+		// TODO Stop here?
+	}
 
 	// sign X1
-	mkr.set_sign("SIGNED_X1", X1.length(), (unsigned char *) &X1[0], priv);
+	if ( ! mkr.set_sign("SIGNED_X1", X1.length(), (unsigned char *) &X1[0], priv) ) {
+		fprintf(fpErr, "Error: Failed to sign X1\n");
+		// TODO: Stop here?
+	}
 		
 	// EK1(encrypt X1 || signedX1)
 	M1part = mkr.get_message();
@@ -158,8 +171,11 @@ Message TrustedObject::verifyInitMessage(Message M0) {
 	X1DataSig.replace(X1DataSig.length(), signedX1.length(),
 			(const char *) &signedX1[0], signedX1.length());
 
-	mkr.set_symencrypt("ENCRYPTED_X1_DATA", X1DataSig.length(),
-			(unsigned char *) &X1DataSig[0], (unsigned char *) &K1[0]);
+	if ( ! mkr.set_symencrypt("ENCRYPTED_X1_DATA", X1DataSig.length(),
+			(unsigned char *) &X1DataSig[0], (unsigned char *) &K1[0]) ) {
+		fprintf(fpErr, "Error: Failed to encrypt X1DATASIG\n");
+		// TODO: Stop here?
+	}
 
 	// form M1
 	M1part = mkr.get_message();
@@ -183,6 +199,15 @@ Message TrustedObject::verifyInitMessage(Message M0) {
         tmpStr = std::to_string(X1.length());
         mkr.set("X1LEN", tmpStr.length(), (unsigned char *) &tmpStr[0]);
 
+	/* DEBUG
+	first4Last4("verifyInit K0", (unsigned char *) &K0[0], SESSION_KEY_LEN); 	
+	first4Last4("verifyInit A0", (unsigned char *) &decX0Data[0] + MSTATE_LEN + TSTMP_LEN + cuLen, AUTH_KEY_LEN);
+	first4Last4("verifyInit X0", (unsigned char *) &decX0Data[0], X0Len);
+	first4Last4("verifyInit X0||signedX0", (unsigned char *) &decX0Data[0], decX0Data.length()); 	
+	printf("\n");
+	first4Last4("verifyInit K1", (unsigned char *) &K1[0], SESSION_KEY_LEN);
+	first4Last4("verifyInit X1||signedX1", (unsigned char *) &X1DataSig[0], X1DataSig.length());
+	*/
 
 	return mkr.get_message();
 }

@@ -19,14 +19,15 @@ typedef std::map<std::string, std::vector<LogEntry>> ClosedLogEntries;
 
 class UntrustedObject {
 private:
-	Log					_log;
+	Log			_log;
 	ClosedLogEntries	_closedLogEntries;
 	MessageMaker		msgFact;
-	EVP_PKEY 			*pub;
-	EVP_PKEY 			*priv;
-	EVP_PKEY 			*trustPub;
+	EVP_PKEY 		*pub;
+	EVP_PKEY 		*priv;
+	EVP_PKEY 		*trustPub;
 	std::string 		Aj;
-	long int 			d_max;
+	std::string		trustedHashedX0;
+	long int 		d_max;
 
 public:
 	UntrustedObject();
