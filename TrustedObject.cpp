@@ -92,7 +92,10 @@ Message TrustedObject::verifyInitMessage(Message M0) {
 
 	// obtain K0
 	tmpVector = M0.get_payload("ENCRYPTED_K0");
-	cryptsuite::pkDecrypt((unsigned char *) &tmpVector[0], tmpVector.size(), &tmpBuf, priv);
+	if ( ! cryptsuite::pkDecrypt((unsigned char *) &tmpVector[0], tmpVector.size(), &tmpBuf, priv) ) {
+		fprintf(fpErr, "Failed to obtain K0\n");
+		// TODO: Stop here?
+	}
 	K0 = std::string((const char *) tmpBuf, SESSION_KEY_LEN);
 	delete[] tmpBuf;
 
