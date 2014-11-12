@@ -2,6 +2,7 @@
 #include <stdexcept>
 #include "cryptsuite.hpp"
 #include "utils.hpp"
+#include "Common.hpp"
 
 extern FILE* fpErr;
 
@@ -25,7 +26,7 @@ VerificationObject::verifyEntryStart(Log & log , int n){
     it--;
     std::string oldY= it->getYj();
     it++;
-    check= hashY(oldY,it->getEncryptedDj(),it->getEntryType());
+    check= Common::hashY(oldY,it->getEncryptedDj(),it->getEntryType());
 
     if(msg.compare(check)!=0){
       fprintf(fpErr, "Error: Hash of Enrty %d is bad.\n",i);
@@ -74,7 +75,7 @@ VerificationObject::verifyAllStart(Log & log){
     it--;
     std::string oldY= it->getYj();
     it++;
-    check= hashY(oldY,it->getEncryptedDj(),it->getEntryType());
+    check= Common::hashY(oldY,it->getEncryptedDj(),it->getEntryType());
 
     if(msg.compare(check)!=0){
       fprintf(fpErr, "Error: Hash of Enrty %d is bad.\n",i);
@@ -95,7 +96,7 @@ VerificationObject::verifyAllStart(Log & log){
   std::string Zf = logs.back().getZj();
   std::string Q = numToString<int>(0);
 
-  for (int i =1;i<logs.size();i++)
+  for (size_t i =1;i<logs.size();i++)
     Q=Q+","+numToString<int>(i);
 
   mkr.set("IDlog",IDlog.length(),(unsigned char *)&IDlog[0]);
