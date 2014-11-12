@@ -29,7 +29,7 @@ std::string hashTypeKey(EntryType type, const std::string & keyAj) {
 		return 0x0;
 	}
 
-	std::string hashedKey((const char *)outHash);
+	std::string hashedKey((const char *)outHash, MD_BYTES);
 	return hashedKey;
 }
 
@@ -47,14 +47,14 @@ std::string hashTypeKey(EntryType type, const std::string & keyAj) {
 std::string encryptMessage(const std::string & message,
 		const std::string & hashedKey) {
 	unsigned char *outSym = 0x0;
-	//size_t encryptSize =
+	size_t encryptSize =
 	cryptsuite::symEncrypt(
 			(unsigned char *)message.c_str(),
 			message.length(),
 			&outSym,
 			(unsigned char *)hashedKey.c_str());
 
-	std::string encryptedMessage((const char *)outSym);
+	std::string encryptedMessage((const char *)outSym, encryptSize);
 	return encryptedMessage;
 }
 
@@ -85,7 +85,7 @@ std::string hashY(const std::string & prevY,
 		return 0x0;
 	}
 
-	std::string hashedY((const char *)outHash);
+	std::string hashedY((const char *)outHash, MD_BYTES);
 	return hashedY;
 }
 
@@ -109,7 +109,7 @@ std::string hashZ(const std::string & Yj, const std::string & keyAj) {
 		return 0x0;
 	}
 
-	std::string hashedZ((const char *)outHash);
+	std::string hashedZ((const char *)outHash, HMAC_BYTES);
 	return hashedZ;
 }
 
