@@ -1,5 +1,7 @@
 #include "VerificationObject.hpp"
 #include <stdexcept>
+#include "cryptsuite.hpp"
+#include "utils.hpp"
 
 extern FILE* fpErr;
 
@@ -9,8 +11,7 @@ extern FILE* fpErr;
 //Part one verfies well formidness of log   
 Message 
 VerificationObject::verifyEntryStart(Log & log , int n){
-  //1 v recives a copy done
-  //2 v goes through the hash chain and assures that each entry is correct
+
   std::vector<LogEntry> logs =log.getEntries();
   std::vector<LogEntry>::iterator it = logs.begin();
   it++;
@@ -33,11 +34,24 @@ VerificationObject::verifyEntryStart(Log & log , int n){
     } 
     i++;
   }   
-  //3 generate message
-  //4 form message with
-  //p,  IDlog, f,yf,zf,n
-  //5 return msg
-  
+
+  mkr.set_MessageState(MessageState::VER_N_START);
+  mkr.clear_payload();
+  mkr.set_ID(V_ID);
+
+  std::string IDlog=log.getLogName();
+  std::string p = numToString<int>(MessageState::VER_N_START);
+  std::string f = numToString<int>(logs.size());
+  std::string Yf = logs.back().getYj();
+  std::string Zf = logs.back().getZj();
+  std::string Q = numToString<int>(n);
+
+  mkr.set("IDlog",IDlog.length(),(unsigned char *)&IDlog[0]);
+  mkr.set("p",p.length(),(unsigned char *)&p[0]);
+  mkr.set("f",f.length(),(unsigned char *)&f[0]);
+  mkr.set("Yf",Yf.length(),(unsigned char *)&Yf[0]);
+  mkr.set("Zf",Zf.length(),(unsigned char *)&Zf[0]);
+  mkr.set("Q",Q.length(),(unsigned char *)&Q[0]);
 
   return mkr.get_message();
 }
@@ -69,7 +83,29 @@ VerificationObject::verifyAllStart(Log & log){
     i++;
   }
 
-  //TODO: make message
+ 
+  mkr.set_MessageState(MessageState::VER_START);
+  mkr.clear_payload();
+  mkr.set_ID(V_ID);
+
+  std::string IDlog=log.getLogName();
+  std::string p = numToString<int>(MessageState::VER_START);
+  std::string f = numToString<int>(logs.size());
+  std::string Yf = logs.back().getYj();
+  std::string Zf = logs.back().getZj();
+  std::string Q = numToString<int>(0);
+
+  for (int i =1;i<logs.size();i++)
+    Q=Q+","+numToString<int>(i);
+
+  mkr.set("IDlog",IDlog.length(),(unsigned char *)&IDlog[0]);
+  mkr.set("p",p.length(),(unsigned char *)&p[0]);
+  mkr.set("f",f.length(),(unsigned char *)&f[0]);
+  mkr.set("Yf",Yf.length(),(unsigned char *)&Yf[0]);
+  mkr.set("Zf",Zf.length(),(unsigned char *)&Zf[0]);
+  mkr.set("Q",Q.length(),(unsigned char *)&Q[0]);
+
+
 
   return mkr.get_message();
 } 
