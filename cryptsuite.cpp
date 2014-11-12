@@ -772,7 +772,7 @@ err:
 	// clean up
 	HMAC_CTX_cleanup(&hctx);
 	
-	if (ret == 0 && out != NULL)
+	if (ret == 0 && *out != NULL)
 		delete[] *out;
 
 	return ret;
