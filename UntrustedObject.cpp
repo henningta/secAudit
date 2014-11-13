@@ -160,6 +160,9 @@ Message UntrustedObject::createLog(const std::string & logName) {
 	}
 	trustedHashedX0 = std::string((const char *) tmpBuf, MD_BYTES);
 
+	// add log name to payload
+	msgFact.set("logName", logName.length(), (unsigned char *) &logName[0]);
+
 	// increment Aj key
 	incrementAj();
 

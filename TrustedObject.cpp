@@ -79,6 +79,7 @@ Message TrustedObject::verifyInitMessage(Message M0) {
 	std::string			hashedX0;
 	std::string			M1;
 	std::string			tmpStr;
+	std::string			logName;
 	Message				M1part;
 	unsigned char			*tmpBuf;
 	unsigned char			tmpFixedBuf[5000];
@@ -133,8 +134,12 @@ Message TrustedObject::verifyInitMessage(Message M0) {
 		// TODO: Stop here?
 	}
 
-	// read in A0
+	// read in A0 and associate it with current log
 	_keyA0 = std::string((const char *) &decX0Data[0] + MSTATE_LEN + TSTMP_LEN + cuLen, AUTH_KEY_LEN);
+	tmpVector = M0.get_payload("logName");
+	logName = std::string(tmpVector.begin(), tmpVector.end());
+	logNameA0Map[logName] = _keyA0;
+	
 
 	// form X1 - p, hash(X0) TODO: How does T know IDLog?!
 	mkr.set_MessageState(MessageState::VER_INIT_RESP);
