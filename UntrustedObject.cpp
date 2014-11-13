@@ -236,7 +236,7 @@ void UntrustedObject::verifyInitResponse(Message M1) {
 	}
 
         // obtain hashedX0
-        hashedX0 = std::string((const char *) &decX1Data[0] + MSTATE_LEN, MD_BYTES);
+        hashedX0 = std::string((const char *) &decX1Data[0] + MSTATE_LEN + logName.length(), MD_BYTES);
 
 	// verify hashedX0 with own copy
 	if ( trustedHashedX0.compare(hashedX0) != 0 ) {
