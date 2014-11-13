@@ -11,6 +11,7 @@ extern FILE *fpErr;
  *      incrementHash
  *
  *      Given an initial hash, hash it a specified number of times
+ *	Only works for output being fed as the only input
  *
  *      @param  base    initial hash
  *      @param  count	number of times to repeat hashing
@@ -28,7 +29,7 @@ std::string Common::incrementHash(const std::string & base, int count) {
 	                result.replace(0, AUTH_KEY_LEN, (const char *) newKey, AUTH_KEY_LEN);
                 	delete[] newKey;
         	} else {
-                	fprintf(fpErr, "Error: Failed to increment Aj\n");
+                	fprintf(fpErr, "Error: Failed to increment hash\n");
         	}   
 	}
 	return result;
