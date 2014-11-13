@@ -188,6 +188,7 @@ void UntrustedObject::verifyInitResponse(Message M1) {
         std::string                     K1;
         std::string                     decX1Data;
         std::string                     hashedX0;
+	std::string			logName;
         unsigned char 			*tmpBuf;
         size_t                          decBytes;
         size_t                          X1Len;
@@ -219,10 +220,12 @@ void UntrustedObject::verifyInitResponse(Message M1) {
         decX1Data = std::string((const char *) tmpBuf, decBytes);
         delete[] tmpBuf;
 
-        // verify X1 - p, TODO: IDlog?!, hashedX0
+        // verify X1 - p, IDlog, hashedX0
         tmpVector = M1.get_payload("X1LEN");
         tmpVector.push_back('\0');
         X1Len = atoi((const char *) &tmpVector[0]);
+	
+	logName = decX1Data.substr(1, decX1Data.length() - MD_BYTES - SIG_BYTES - 1);
 
 	// verify X1
 	if ( ! cryptsuite::verifySignature((unsigned char *) &decX1Data[0], X1Len, 

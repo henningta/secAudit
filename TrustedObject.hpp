@@ -11,6 +11,7 @@
  */
 
 #include <string>
+#include <map>
 #include <openssl/safestack.h>
 #include <openssl/x509_vfy.h>
 #include "Message.hpp"
@@ -19,6 +20,7 @@
 class TrustedObject {
 private:
   std::string _keyA0;
+  std::map<std::string, std::string> logNameA0Map;
   Message M0;
   EVP_PKEY *pub;
   EVP_PKEY *priv;

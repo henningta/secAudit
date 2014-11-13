@@ -141,7 +141,7 @@ Message TrustedObject::verifyInitMessage(Message M0) {
 	logNameA0Map[logName] = _keyA0;
 	
 
-	// form X1 - p, hash(X0) TODO: How does T know IDLog?!
+	// form X1 - p, IDlog hash(X0)
 	mkr.set_MessageState(MessageState::VER_INIT_RESP);
 	p = std::to_string(VER_INIT_RESP);
 
@@ -152,6 +152,7 @@ Message TrustedObject::verifyInitMessage(Message M0) {
 	delete[] tmpBuf;
 
 	X1 = p;
+	X1.replace(X1.length(), logName.length(), &logName[0], logName.length());
 	X1.replace(X1.length(), MD_BYTES, (const char *) &hashedX0[0], MD_BYTES);
 	
 	// generate random key K1 and encrypt it
