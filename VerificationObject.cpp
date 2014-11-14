@@ -131,7 +131,7 @@ VerificationObject::verifyAllStart(Log & log){
 
 Message
 VerificationObject::verifyAllTwo(Log & log,Message status,
-				 std::vector<unsigned char *> keys, 
+				 std::vector<std::string> keys, 
 				 std::string filename){
 
 
@@ -143,15 +143,17 @@ VerificationObject::verifyAllTwo(Log & log,Message status,
 
   std::vector<LogEntry> logs =log.getEntries();
   std::vector<LogEntry>::iterator it = logs.begin();
-  std::vector<unsigned char *>::iterator key = keys.begin();
+  std::vector<std::string>::iterator key = keys.begin();
 
   for (;it != logs.end(); ++it){
 
     unsigned char * unencrypt;
     std::string enc= it->getEncryptedDj();
+    std::string dec=*key;
     size_t sizStr=
       cryptsuite::symDecrypt((unsigned char *)&enc[0]
-			     ,enc.length(),&unencrypt, *key);
+			     ,enc.length(),&unencrypt,
+			     (unsigned char *)&enc[0]);
     std::string out((char * )unencrypt,sizStr);
     os<<out<<"\n";
     key++;

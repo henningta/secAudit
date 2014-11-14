@@ -32,7 +32,7 @@ public:
 
   Message
   verifyAllTwo(Log & log,Message status,
-	       std::vector<unsigned char *> keys, std::string filename);
+	       std::vector<std::string> keys, std::string filename);
 
 };
 
