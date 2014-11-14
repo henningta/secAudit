@@ -23,6 +23,8 @@ void do_command(
 		VerificationObject & verificationObject) {
  
   std::size_t pos;
+
+
   if((pos=cmd.find("createlog")) != std::string::npos){
     std::vector<std::string> cmdTokens = split(cmd, ' ');
     if(cmdTokens.size()==2) {
@@ -33,7 +35,9 @@ void do_command(
     } else {
       std::cout << help;
     }
-  } else if ((pos=cmd.find("add")) != std::string::npos) {
+  } 
+
+  else if ((pos=cmd.find("add")) != std::string::npos) {
     std::vector<std::string> cmdTokens = split(cmd, ' ');
     if(cmdTokens.size() == 2) {
       untrustedObject.addEntry(cmdTokens[1], LOG_ENTRY_APPEND);
@@ -43,10 +47,35 @@ void do_command(
     } else {
       std::cout << help;
     }
-  } else if ((pos=cmd.find("closelog")) != std::string::npos) {
+  } 
+  
+  else if ((pos=cmd.find("closelog")) != std::string::npos) {
     untrustedObject.closeLog();
-      std::cout << "Closed " + untrustedObject.getLogName() + "\n";
-  } else if ((pos=cmd.find("verify")) != std::string::npos) {
+    std::cout << "Closed " + untrustedObject.getLogName() + "\n";
+  } 
+
+
+  else if ((pos=cmd.find("verifyall")) != std::string::npos) {
+    std::vector<std::string> cmdTokens = split(cmd, ' ');
+    std::cout << "verifyall : " << cmdTokens[1] << " " << cmdTokens[2] <<"\n";
+    Log log(cmdTokens[2]);
+    //int n=std::stoi(cmdTokens[1]);                                      
+    ClosedLogEntries closed = untrustedObject.getClosedLogEntries();
+    
+    Message resp=
+      verificationObject.verifyAllStart(log);
+    std::vector<std::string> keys
+      = trustedObject.verificationResponse(resp,log,closed);
+    verificationObject.verifyAllTwo(log,resp,keys,cmdTokens[2]);
+    
+    
+    if(cmdTokens.size() == 3) {
+      std::cout << "verifyall : " << cmdTokens[1] << " " << cmdTokens[2] \
+		<< "\n";
+    }
+  }
+  
+  else if ((pos=cmd.find("verify")) != std::string::npos) {
     
     std::vector<std::string> cmdTokens = split(cmd, ' ');
     std::cout << "verify :" << cmdTokens[1] << "\n";
@@ -66,29 +95,11 @@ void do_command(
     } else {
       std::cout << help;
     }
-  } else if ((pos=cmd.find("verifyall")) != std::string::npos) {
-    std::vector<std::string> cmdTokens = split(cmd, ' ');
-    std::cout << "verifyall : " << cmdTokens[2] << " " << cmdTokens[3] << "\n";
-    Log &log =untrustedObject.getOpenedLog();
-    int n=std::stoi(cmdTokens[1]);
-    ClosedLogEntries closed = untrustedObject.getClosedLogEntries();
-
-   Message resp=
-     verificationObject.verifyAllStart(log);
-   std::vector<std::string> keys
-     = trustedObject.verificationResponse(resp,log,closed);
-   verificationObject.verifyAllTwo(log,resp,keys,cmdTokens[2]);
-
-
-    if(cmdTokens.size() == 3) {
-      std::cout << "verifyall : " << cmdTokens[1] << " " << cmdTokens[2] << "\n";
-    } else {
-      std::cout << help;
-    }
-  } else {
-    std::cout << help;
-  }
-  
+    
+   } else {
+     std::cout << help;
+   }
+   
 }
 
 // jackson reed, travis henning
