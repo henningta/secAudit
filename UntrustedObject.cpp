@@ -147,15 +147,14 @@ Message UntrustedObject::createLog(const std::string & logName) {
 	D0.replace(D0.length(), M0.length(),
 			(const char *) &M0[0], M0.length());
 
-	// increment Aj key
-	incrementAj();
-
 	// set log name and open log
-
 	_log.setName(logName);
 	if (!_log.open(D0, Aj)) {
 		throw std::runtime_error("Open Log returned false");
 	}
+
+	// increment Aj key
+	incrementAj();
 
 	// update own copy of hashedX0
 	if ( ! cryptsuite::calcMD((unsigned char *) &X0[0], X0.length(), &tmpBuf) ) {
@@ -191,6 +190,8 @@ void UntrustedObject::verifyInitResponse(Message M1) {
         std::string                     decX1Data;
         std::string                     hashedX0;
 	std::string			logName;
+	std::string 			M1Entry;
+	std::string			tmpStr;
         unsigned char 			*tmpBuf;
         size_t                          decBytes;
         size_t                          X1Len;
@@ -254,7 +255,9 @@ void UntrustedObject::verifyInitResponse(Message M1) {
 		goto err;
         }
 
-	// TODO: form a new log entry with Dj = M1
+	// form a new log entry with a 'M1 verified message'
+	// as opposed to Dj = M1
+	addEntry("M1_verified", LOG_ENTRY_APPEND);		
 
 	/* DEBUG 
         first4Last4("verifyResp K1", (unsigned char *) &K1[0], SESSION_KEY_LEN);
@@ -264,8 +267,12 @@ void UntrustedObject::verifyInitResponse(Message M1) {
 err:
 	// abnormal close type according to spec
 	if (close_log) {
-		
-		// TODO: Abnormal close
+		std::string ts = std::to_string(cryptsuite::getCurrentTimeStamp());
+		std::string reason = "M1_INVALID_OR_EXCEEDED_MAX_WAIT";
+
+		addEntry(ts + " " + reason, LOG_ENTRY_ABNORMAL_CLOSE);
+		closeLog();
+			
 	}
 
 }
@@ -291,8 +298,8 @@ void UntrustedObject::incrementAj() {
  * @return 	Messgae
  * @author 	Travis Henning , Jackson Reed
  */
-Message UntrustedObject::addEntry(const std::string & message) {
-	bool app = _log.append(message, Aj);
+Message UntrustedObject::addEntry(const std::string & message, const EntryType ENTRY_TYPE) {
+	bool app = _log.append(message, Aj, ENTRY_TYPE);
 	if (!app) {
 		throw std::runtime_error("Append Log returned false");
 	}
