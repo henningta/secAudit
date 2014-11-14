@@ -257,8 +257,8 @@ std::vector<std::string> TrustedObject::verificationResponse(Message M, Log& ope
 	logName = std::string(tmpVector.begin(), tmpVector.end());
 
 	// verify closed log
-	if ( logName.compare(openedLog.getLogName()) != 0 ) {
-		if ( closedLogs.count(logName) == 0 ) {
+	if ( ! openedLog.isOpen() ) {
+		if ( c.count(logName) == 0 ) {
 			throw std::runtime_error("Failed verification");
 		}
 		logEntries = c[logName];
@@ -306,12 +306,12 @@ std::vector<std::string> TrustedObject::verificationResponse(Message M, Log& ope
 			Aj = Common::incrementHash(Aj, 1);
 		}
 	}
-
+/*
 	for (size_t i = 0; i < keys.size(); i++) {
 		std::string a = keys[i];
 		first4Last4("key", (unsigned char *) &a[0], MD_BYTES);
 	}
-
+*/
 	return keys;
 
 }
