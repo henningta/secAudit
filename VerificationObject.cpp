@@ -16,6 +16,8 @@ extern FILE* fpErr;
 Message 
 VerificationObject::verifyEntryStart(Log & log , int n){
 
+  std::cout<<"start\n";
+
   std::vector<LogEntry> logs =log.getEntries();
   std::vector<LogEntry>::iterator it = logs.begin();
   it++;
@@ -57,12 +59,15 @@ VerificationObject::verifyEntryStart(Log & log , int n){
   mkr.set("Zf",Zf.length(),(unsigned char *)&Zf[0]);
   mkr.set("Q",Q.length(),(unsigned char *)&Q[0]);
 
+  std::cout<<"end\n";
+
+
   return mkr.get_message();
 }
 
 Message
 VerificationObject::verifyEntryTwo(Log & log ,Message m ,int n,unsigned char *keyN){
-
+  std::cout<<"made it to 2\n";
 
   unsigned char * unencrypt;
   std::string enc= log.getEntry(n).getEncryptedDj();
