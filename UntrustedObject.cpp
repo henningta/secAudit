@@ -140,6 +140,7 @@ Message UntrustedObject::createLog(const std::string & logName) {
 
 	// form D0 - d, d+, IDlog
 	D0 = d;
+	D0.replace(D0.length(), 1, " ", 1);
 	D0.replace(D0.length(), d_max_str.length(),
 			(const char *) &d_max_str[0], d_max_str.length());
 	D0.replace(D0.length(), 1, " ", 1);
