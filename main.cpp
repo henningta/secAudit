@@ -25,17 +25,7 @@ void do_command(
   std::size_t pos;
   if((pos=cmd.find("createlog")) != std::string::npos){
     std::vector<std::string> cmdTokens = split(cmd, ' ');
-    if(cmdTokens.size() == 3){
-      if(cmdTokens[0].find("-") == std::string::npos){
-	std::cout << help;
-      } else {
-	Message M0 = untrustedObject.createLog(cmdTokens[1]);
-	Message M1 = trustedObject.verifyInitMessage(M0);
-	untrustedObject.verifyInitResponse(M1);
-	
-	  std::cout << "Created " << cmdTokens[2] << "\n";
-      }
-    } else if(cmdTokens.size()==2) {
+    if(cmdTokens.size()==2) {
 	Message M0 = untrustedObject.createLog(cmdTokens[0]);
 	Message M1 = trustedObject.verifyInitMessage(M0);
 	untrustedObject.verifyInitResponse(M1);
@@ -45,16 +35,7 @@ void do_command(
     }
   } else if ((pos=cmd.find("add")) != std::string::npos) {
     std::vector<std::string> cmdTokens = split(cmd, ' ');
-    if(cmdTokens.size() == 3){
-      if(cmdTokens[0].find("-") == std::string::npos){
-	std::cout << help;
-      } else {
-	untrustedObject.addEntry(cmdTokens[2], LOG_ENTRY_APPEND);
-	  std::cout << "Added log entry number "
-	    + numToString(untrustedObject.getNumEntries() - 1)
-	    + "\n";
-      }
-    } else if(cmdTokens.size() == 2) {
+    if(cmdTokens.size() == 2) {
       untrustedObject.addEntry(cmdTokens[1], LOG_ENTRY_APPEND);
 	std::cout << "Added log entry number "
 	  + numToString(untrustedObject.getNumEntries() - 1)
@@ -70,51 +51,25 @@ void do_command(
     std::vector<std::string> cmdTokens = split(cmd, ' ');
     std::cout << "verify :" << cmdTokens[1] << "\n";
     
-    if(cmdTokens.size() == 3){
-      if(cmdTokens[0].find("-") == std::string::npos) {
-	std::cout << help;
-      } else {
-	//std::cout << "verify : " << cmdTokens[2] << "\n";
-	
-
-	Log &log =untrustedObject.getOpenedLog();
-	int n=std::stoi(cmdTokens[1]);
-	ClosedLogEntries closed = untrustedObject.getClosedLogEntries();
-	Message resp=
-	  verificationObject.verifyEntryStart(log,n);
-      std::vector<std::string> keys 
-	= trustedObject.verificationResponse(resp,log,closed);
-      verificationObject.verifyEntryTwo(log,resp,n,
-					  (unsigned char *)&(keys[0][0]));
-
-
-
-      }
-    } else if(cmdTokens.size() == 2) {
+    if(cmdTokens.size() == 2) {
       std::cout << "verify : " << cmdTokens[1] << "\n";
       Log &log =untrustedObject.getOpenedLog();
       int n=std::stoi(cmdTokens[1]);
       ClosedLogEntries closed = untrustedObject.getClosedLogEntries();
-        Message resp=
-          verificationObject.verifyEntryStart(log,n);
-	std::vector<std::string> keys
-	  = trustedObject.verificationResponse(resp,log,closed);
-	verificationObject.verifyEntryTwo(log,resp,n,
-                                          (unsigned char *)&(keys[0][0]));
-
+      Message resp=
+	verificationObject.verifyEntryStart(log,n);
+      std::vector<std::string> keys
+	= trustedObject.verificationResponse(resp,log,closed);
+      verificationObject.verifyEntryTwo(log,resp,n,
+					(unsigned char *)&(keys[0][0]));
+      
     } else {
       std::cout << help;
     }
   } else if ((pos=cmd.find("verifyall")) != std::string::npos) {
     std::vector<std::string> cmdTokens = split(cmd, ' ');
     std::cout << "verifyall : " << cmdTokens[2] << " " << cmdTokens[3] << "\n";
-    if(cmdTokens.size() == 4) {
-      if(cmdTokens[0].find("-") == std::string::npos) {
-	std::cout << help;
-      } else {
-	std::cout << "verifyall : " << cmdTokens[2] << " " << cmdTokens[3] << "\n";
-      }
-    } else if(cmdTokens.size() == 3) {
+    if(cmdTokens.size() == 3) {
       std::cout << "verifyall : " << cmdTokens[1] << " " << cmdTokens[2] << "\n";
     } else {
       std::cout << help;
