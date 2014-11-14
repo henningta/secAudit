@@ -8,9 +8,6 @@
 
 */
 
-// TODO:
-//	 - Move genLogID and getCurrentTimeStamp to more log-related code?
-
 #include "cryptsuite.hpp"
 
 #define REDIRECT_ERR // comment-out this line to use external file
@@ -795,30 +792,6 @@ int genRandBytes(unsigned char *in, size_t len) {
  		fprintf(fpErr, "Error: Failed to generate random bytes\n");
 		 return 0;
  	}
-	return 1;
-}
-
-/**
-
-  genLogID
-
-  Generates a new log ID based on the date and time
-  in the following format: YYYYMMDD_HHMM_SS
-
-  @param id     string buffer for the ID
-
-  @return       1 if successful, 0 otherwise
-
-*/
-int genLogID(unsigned char *id) {
-	time_t 		t;
-	struct tm 	*tmp;
-
-	t = time(NULL);
-	tmp = localtime(&t);
-
-	strftime((char *) id, LOG_ID_LEN , "%Y%m%d_%k%M_%S", tmp);
-
 	return 1;
 }
 
