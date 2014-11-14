@@ -21,12 +21,12 @@ void do_command(
 		UntrustedObject & untrustedObject,
 		TrustedObject & trustedObject,
 		VerificationObject & verificationObject) {
- 
+
   std::size_t pos;
   if((pos=cmd.find("createlog")) != std::string::npos){
     std::vector<std::string> cmdTokens = split(cmd, ' ');
     if(cmdTokens.size()==2) {
-	Message M0 = untrustedObject.createLog(cmdTokens[0]);
+	Message M0 = untrustedObject.createLog(cmdTokens[1]);
 	Message M1 = trustedObject.verifyInitMessage(M0);
 	untrustedObject.verifyInitResponse(M1);
 	std::cout << "Created " << cmdTokens[1] << "\n";
@@ -47,10 +47,10 @@ void do_command(
     untrustedObject.closeLog();
       std::cout << "Closed " + untrustedObject.getLogName() + "\n";
   } else if ((pos=cmd.find("verify")) != std::string::npos) {
-    
+
     std::vector<std::string> cmdTokens = split(cmd, ' ');
     std::cout << "verify :" << cmdTokens[1] << "\n";
-    
+
     if(cmdTokens.size() == 2) {
       std::cout << "verify : " << cmdTokens[1] << "\n";
       Log &log =untrustedObject.getOpenedLog();
@@ -62,7 +62,7 @@ void do_command(
 	= trustedObject.verificationResponse(resp,log,closed);
       verificationObject.verifyEntryTwo(log,resp,n,
 					(unsigned char *)&(keys[0][0]));
-      
+
     } else {
       std::cout << help;
     }
@@ -88,7 +88,7 @@ void do_command(
   } else {
     std::cout << help;
   }
-  
+
 }
 
 // jackson reed, travis henning
@@ -96,10 +96,10 @@ int main (int argc, char **argv) {
   UntrustedObject untrustedObject;
   TrustedObject trustedObject;
   VerificationObject verificationObject;
-  
+
   std::string cmd="";
   std::cout<<help;
-  
+
   while (1){
     std::cout << ">";
     std::getline(std::cin,cmd);
@@ -110,6 +110,6 @@ int main (int argc, char **argv) {
       std::cout << e.what() << "\n";
     }
   }
-  
+
   exit (0);
 }

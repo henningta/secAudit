@@ -48,6 +48,8 @@ public:
 
 	LogEntry & getEntry(int pos) { return _logEntries.at(pos); }
 	std::vector<LogEntry> & getEntries() { return _logEntries; }
+
+	void clear();
 };
 
 #endif // __LOG_HPP__

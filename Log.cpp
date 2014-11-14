@@ -230,3 +230,18 @@ bool Log::append(const std::string & message, const std::string & Aj, const Entr
 	return true;
 }
 
+/**
+ * clear
+ *
+ * Clears all data from log (useful when creating new logs)
+ *
+ * @author Travis Henning
+ */
+void Log::clear() {
+	_logFile.clear();
+	_logName.clear();
+	_logEntries.clear();
+	_Yj.clear();
+	_Zj.clear();
+}
+

@@ -150,6 +150,7 @@ Message UntrustedObject::createLog(const std::string & logName) {
 	//		(const char *) &M0[0], M0.length());
 
 	// set log name and open log
+	_log.clear();
 	_log.setName(logName);
 	if (!_log.open(D0, Aj)) {
 		throw std::runtime_error("Open Log returned false");
