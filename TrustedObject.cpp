@@ -1,4 +1,6 @@
 #include "TrustedObject.hpp"
+#include "Common.hpp"
+#include "LogEntry.hpp"
 #include <stdexcept>
 #include "utils.hpp"
 #include "debug.hpp"
@@ -39,7 +41,7 @@ TrustedObject::TrustedObject() {
 }
 
 /**
- * UntrustedObject::verifyCertificate
+ * TrustedObject::verifyCertificate
  *
  * Verifies a given certificate
  *
@@ -57,7 +59,7 @@ int TrustedObject::verifyCertificate(X509 *cert) {
 }
 
 /**
- * UntrustedObject::verifyInitMessage
+ * TrustedObject::verifyInitMessage
  *
  * Verifies M0 and sends back M1
  *
@@ -221,3 +223,90 @@ Message TrustedObject::verifyInitMessage(Message M0) {
 	return mkr.get_message();
 }
 
+/**
+ * TrustedObject::verificationResponse
+ *
+ * Verifies log entry if a log is currently opened
+ * on the UntrustedObject
+ *
+ * @author      	Timothy Thong
+ */
+std::vector<std::string> TrustedObject::verificationResponse(Message M, Log& openedLog, ClosedLogEntries c) {
+	std::string			logName;
+	std::string			p;
+	std::string			V_Af;	// verifier
+	std::string			V_Yf;
+	std::string			V_Zf;
+	std::string			U_Yf;	// untrusted
+	std::string			T_A0;	// trusted
+	std::string			T_Af;
+	std::string			T_Zf;
+	std::string			key;
+	std::vector<std::string> 	keys;
+	EntryType			Wj;
+	std::string			tmpStr;
+	std::vector<unsigned char> 	tmpVector;
+	std::vector<LogEntry>		logEntries;
+	ClosedLogEntries		closedLogs;
+	VerifyMode			vMode;
+	std::string			Aj;
+	std::string			Kj;
+	int				f;
+	
+	tmpVector = M.get_payload("IDlog");
+	logName = std::string(tmpVector.begin(), tmpVector.end());
+
+	// verify closed log
+	if ( logName.compare(openedLog.getLogName()) != 0 ) {
+		if ( closedLogs.count(logName) == 0 ) {
+			throw std::runtime_error("Failed verification");
+		}
+		logEntries = c[logName];
+		vMode = VERIFY_ALL;
+
+	// verify opened log
+	} else {
+		logEntries = openedLog.getEntries();
+		vMode = VERIFY_ENTRY;
+	}
+	
+	// Obtain correct  A0 for the log
+	T_A0 = logNameA0Map[logName]; 
+
+	tmpVector = M.get_payload("Zf");
+	V_Zf = std::string(tmpVector.begin(), tmpVector.end());
+	
+	// Obtain f
+	tmpVector = M.get_payload("f");
+	tmpVector.push_back('\0');
+	tmpStr = std::string(tmpVector.begin(), tmpVector.end());
+	f = atoi(&tmpStr[0]);
+
+	U_Yf = logEntries.at(f).getYj();
+	T_Af = Common::incrementHash(T_A0, f);
+	T_Zf = Common::hashZ(U_Yf, T_Af);
+		
+	if (T_Zf.compare(V_Zf) != 0) {
+		throw std::runtime_error("Failed verification");
+	}
+
+	if (vMode == VERIFY_ENTRY) {
+		Aj = Common::incrementHash(Aj, f);
+		Wj = logEntries.at(f).getEntryType();
+		Kj = Common::hashTypeKey(Wj, Aj);
+		
+		keys.push_back(Kj);
+		
+	} else if (vMode == VERIFY_ALL) {
+		Aj = T_A0;
+		for (size_t i = 0; i < logEntries.size(); i++) {
+			Wj = logEntries.at(i).getEntryType();
+			Kj = Common::hashTypeKey(Wj, Aj);
+			keys.push_back(Aj);	
+			Aj = Common::incrementHash(Aj, 1);
+		}
+	}
+
+	return keys;
+
+}

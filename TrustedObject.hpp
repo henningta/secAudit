@@ -15,7 +15,14 @@
 #include <openssl/safestack.h>
 #include <openssl/x509_vfy.h>
 #include "Message.hpp"
+#include "UntrustedObject.hpp"
+#include "LogEntry.hpp"
 #include "cryptsuite.hpp"
+
+enum VerifyMode {
+	VERIFY_ENTRY,
+	VERIFY_ALL
+};
 
 class TrustedObject {
 private:
@@ -32,6 +39,7 @@ private:
 public:
   TrustedObject();
   Message verifyInitMessage(Message M0);
+  std::vector<std::string> verificationResponse(Message M, Log& openedLog, ClosedLogEntries c);
   int verifyCertificate(X509 *cert);
 
 private:
