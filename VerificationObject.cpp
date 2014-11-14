@@ -45,7 +45,7 @@ VerificationObject::verifyEntryStart(Log & log , int n){
 
   std::string IDlog=log.getLogName();
   std::string p = numToString<int>(MessageState::VER_N_START);
-  std::string f = numToString<int>(logs.size());
+  std::string f = numToString<int>(n);
   std::string Yf = logs.back().getYj();
   std::string Zf = logs.back().getZj();
   std::string Q = numToString<int>(n);
