@@ -16,7 +16,8 @@
 enum EntryType {
 	LOG_ENTRY_OPEN,
 	LOG_ENTRY_CLOSE,
-	LOG_ENTRY_APPEND
+	LOG_ENTRY_APPEND,
+	LOG_ENTRY_ABNORMAL_CLOSE
 };
 
 std::string entryTypeToString(EntryType type);

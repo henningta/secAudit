@@ -44,15 +44,15 @@ void do_command(
       if(cmdTokens[0].find("-") == std::string::npos){
 	std::cout << help;
       } else {
-	untrustedObject.addEntry(cmdTokens[2]);
+	untrustedObject.addEntry(cmdTokens[2], LOG_ENTRY_APPEND);
 	  std::cout << "Added log entry number "
-	    + numToString(untrustedObject.getNumEntries())
+	    + numToString(untrustedObject.getNumEntries() - 1)
 	    + "\n";
       }
     } else if(cmdTokens.size() == 2) {
-      untrustedObject.addEntry(cmdTokens[1]);
+      untrustedObject.addEntry(cmdTokens[1], LOG_ENTRY_APPEND);
 	std::cout << "Added log entry number "
-	  + numToString(untrustedObject.getNumEntries())
+	  + numToString(untrustedObject.getNumEntries() - 1)
 	  + "\n";
     } else {
       std::cout << help;

@@ -11,6 +11,7 @@
  */
 
 #include "Log.hpp"
+#include "LogEntry.hpp"
 #include "Message.hpp"
 #include "cryptsuite.hpp"
 #include <map>
@@ -32,7 +33,7 @@ private:
 public:
 	UntrustedObject();
 	Message createLog(const std::string & logName);
-	Message addEntry(const std::string & message);
+	Message addEntry(const std::string & message, const EntryType ENTRY_TYPE);
 	Message closeLog();
 	void verifyInitResponse(Message M1);
 	void incrementAj();

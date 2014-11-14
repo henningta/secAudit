@@ -38,7 +38,7 @@ public:
 
 	bool open(const std::string & D0, const std::string & A0);
 	bool close(const std::string & Aj);
-	bool append(const std::string & message, const std::string & Aj);
+	bool append(const std::string & message, const std::string & Aj, const EntryType ENTRY_TYPE);
 
 	inline bool isOpen() { return _logFile.is_open(); }
 	inline int getNumEntries() { return _logEntries.size(); }
