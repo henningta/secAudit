@@ -43,6 +43,7 @@ public:
 
 	inline const std::string & getLogName() { return _log.getName(); }
 	inline int getNumEntries() { return _log.getNumEntries(); }
+	std::vector<LogEntry> & getEntries() { return _log.getEntries(); }
 };
 
 #endif // __UNTRUSTED_OBJECT_HPP__
