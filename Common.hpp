@@ -16,13 +16,13 @@
 #include "cryptsuite.hpp"
 #include "LogEntry.hpp"
 
-class Common {
+namespace Common {
 
-public:
-	static std::string incrementHash(const std::string & base, int count);
-	static std::string hashTypeKey(EntryType type, const std::string & keyAj);
-	static std::string hashY(const std::string & prevY, const std::string & encryptedMessage, EntryType entryType);
-	static std::string hashZ(const std::string & Yj, const std::string & keyAj);
+
+	std::string incrementHash(const std::string & base, int count);
+	std::string hashTypeKey(EntryType type, const std::string & keyAj);
+	std::string hashY(const std::string & prevY, const std::string & encryptedMessage, EntryType entryType);
+	std::string hashZ(const std::string & Yj, const std::string & keyAj);
 };
 
 #endif // __COMMON_HPP__
