@@ -4,7 +4,7 @@ CC=g++ -std=c++0x
 CFLAGS=-c -Wall -g
 LDFLAGS= -lssl -lcrypto
 SOURCES=main.cpp utils.cpp TrustedObject.cpp UntrustedObject.cpp \
-	VerificationObject.cpp Log.cpp LogEntry.cpp Message.cpp cryptsuite.cpp \
+	VerificationObject.cpp Log.cpp LogEntry.cpp Message.cpp cryptsuite.cpp Common.cpp\
 	debug.cpp
 OBJECTS=$(SOURCES:.cpp=.o)
 EXECUTABLE=SecureAudit

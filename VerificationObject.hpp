@@ -7,7 +7,7 @@
  * Represents the verification server which checks logs and log entries for
  * integrity after encryption
  *
- * @author(s)	Travis Henning
+ * @author(s)	Travis Henning, Jackson Reed
  */
 
 #include "Log.hpp"
