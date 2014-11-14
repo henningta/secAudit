@@ -129,22 +129,30 @@ VerificationObject::verifyAllTwo(Log & log,Message status,
 				 std::vector<unsigned char *> keys, 
 				 std::string filename){
 
-  /*
+
+  
   std::filebuf fb;
   fb.open (filename.c_str(),std::ios::out);
   std::ostream os(&fb);
 
-  unsigned char * unencrypt;
-  std::string enc= log.getEntry(n).getEncryptedDj();
-  size_t sizStr=
-    cryptsuite::symDecrypt((unsigned char *)&enc[0]
-			   ,enc.length(),&unencrypt, keyN);
-  std::string out((char * )unencrypt,sizStr);
-  os<<out<<"\n";
 
- 
+  std::vector<LogEntry> logs =log.getEntries();
+  std::vector<LogEntry>::iterator it = logs.begin();
+  std::vector<unsigned char *>::iterator key = keys.begin();
+
+  for (;it != logs.end(); ++it){
+
+    unsigned char * unencrypt;
+    std::string enc= it->getEncryptedDj();
+    size_t sizStr=
+      cryptsuite::symDecrypt((unsigned char *)&enc[0]
+			     ,enc.length(),&unencrypt, *key);
+    std::string out((char * )unencrypt,sizStr);
+    os<<out<<"\n";
+    key++;
+  } 
   fb.close();
-  */
+  
  return mkr.get_message();
 }
 
