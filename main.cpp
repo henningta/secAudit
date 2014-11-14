@@ -29,12 +29,17 @@ void do_command(
       if(cmdTokens[0].find("-") == std::string::npos){
 	std::cout << help;
       } else {
-	untrustedObject.createLog(cmdTokens[1]);
+	Message M0 = untrustedObject.createLog(cmdTokens[1]);
+	Message M1 = trustedObject.verifyInitMessage(M0);
+	untrustedObject.verifyInitResponse(M1);
+	
 	  std::cout << "Created " << cmdTokens[2] << "\n";
       }
     } else if(cmdTokens.size()==2) {
-      untrustedObject.createLog(cmdTokens[1]);
-	std::cout << "Created " << cmdTokens[1] << "\n";
+	Message M0 = untrustedObject.createLog(cmdTokens[0]);
+	Message M1 = trustedObject.verifyInitMessage(M0);
+	untrustedObject.verifyInitResponse(M1);
+	std::cout << "Created " << cmdTokens[0] << "\n";
     } else {
       std::cout << help;
     }
