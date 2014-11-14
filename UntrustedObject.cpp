@@ -147,7 +147,11 @@ Message UntrustedObject::createLog(const std::string & logName) {
 	D0.replace(D0.length(), M0.length(),
 			(const char *) &M0[0], M0.length());
 
+	// increment Aj key
+	incrementAj();
+
 	// set log name and open log
+
 	_log.setName(logName);
 	if (!_log.open(D0, Aj)) {
 		throw std::runtime_error("Open Log returned false");
@@ -163,8 +167,6 @@ Message UntrustedObject::createLog(const std::string & logName) {
 	// add log name to payload
 	msgFact.set("logName", logName.length(), (unsigned char *) &logName[0]);
 
-	// increment Aj key
-	incrementAj();
 
 	/* DEBUG
         first4Last4("createLog K0", (unsigned char *) &K0[0], SESSION_KEY_LEN);
@@ -251,6 +253,8 @@ void UntrustedObject::verifyInitResponse(Message M1) {
 		close_log = true;
 		goto err;
         }
+
+	// TODO: form a new log entry with Dj = M1
 
 	/* DEBUG 
         first4Last4("verifyResp K1", (unsigned char *) &K1[0], SESSION_KEY_LEN);
