@@ -29,7 +29,7 @@ void do_command(
 	Message M0 = untrustedObject.createLog(cmdTokens[0]);
 	Message M1 = trustedObject.verifyInitMessage(M0);
 	untrustedObject.verifyInitResponse(M1);
-	std::cout << "Created " << cmdTokens[0] << "\n";
+	std::cout << "Created " << cmdTokens[1] << "\n";
     } else {
       std::cout << help;
     }
@@ -87,17 +87,7 @@ int main (int argc, char **argv) {
   VerificationObject verificationObject;
   
   std::string cmd="";
-  for(int i =1; i< argc; i++){
-    cmd+=argv[i];
-    cmd+=" ";
-  }
-  cmd = cmd.substr(0, cmd.size()-1);
-  
-  try{
-    do_command(cmd, untrustedObject, trustedObject, verificationObject);
-  } catch(std::exception& e){
-    std::cout << e.what() << "\n";
-  }
+  std::cout<<help;
   
   while (1){
     std::cout << ">";
