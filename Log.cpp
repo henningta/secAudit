@@ -120,15 +120,14 @@ bool Log::close(const std::string & Aj) {
  *
  * @param 	message 	the entry message to be appended
  * @param 	Aj 			current key Aj used in sym encryption
+ * @param	ENTRY_TYPE	Wj
  * @return 	bool 		success of append
  * @author 	Travis Henning
  */
-bool Log::append(const std::string & message, const std::string & Aj) {
+bool Log::append(const std::string & message, const std::string & Aj, const EntryType ENTRY_TYPE) {
 	if (!_logFile.is_open()) {
 		return false;
 	}
-
-	const EntryType ENTRY_TYPE = LOG_ENTRY_APPEND;
 
 	// create hash of entry type and key A to form symKey
 	std::string hashedKey = Common::hashTypeKey(ENTRY_TYPE, Aj);
