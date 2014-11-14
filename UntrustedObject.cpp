@@ -138,14 +138,15 @@ Message UntrustedObject::createLog(const std::string & logName) {
         tmpStr = std::to_string(X0.length());
         msgFact.set("X0LEN", tmpStr.length(), (unsigned char *) &tmpStr[0]);
 
-	// form D0 - d, d+, IDlog, M0
+	// form D0 - d, d+, IDlog
 	D0 = d;
 	D0.replace(D0.length(), d_max_str.length(),
 			(const char *) &d_max_str[0], d_max_str.length());
+	D0.replace(D0.length(), 1, " ", 1);
 	D0.replace(D0.length(), logName.length(),
 			(const char *) &logName[0], logName.length());
-	D0.replace(D0.length(), M0.length(),
-			(const char *) &M0[0], M0.length());
+	//D0.replace(D0.length(), M0.length(),
+	//		(const char *) &M0[0], M0.length());
 
 	// set log name and open log
 	_log.setName(logName);
