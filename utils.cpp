@@ -16,3 +16,16 @@ std::vector<std::string> split(const std::string &s, char delim) {
   split(s, delim, elems);
   return elems;
 }
+
+// travis henning
+std::string readToChar(char stop, std::istream & iStream) {
+	std::string buf;
+	char c;
+	while (iStream >> std::noskipws >> c) {
+		if (c == stop) {
+			break;
+		}
+		buf += c;
+	}
+	return buf;
+}

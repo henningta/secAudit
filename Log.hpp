@@ -17,13 +17,13 @@
 #include "LogEntry.hpp"
 
 std::string hashY(const std::string & prevY,
-		  const std::string & encryptedMessage, 
+		  const std::string & encryptedMessage,
 		  EntryType entryType);
 
 
 class Log {
 private:
-	std::ofstream 			_logFile;
+	std::fstream 			_logFile;
 	std::string 			_logName;
 	std::vector<LogEntry> 	_logEntries;
 
@@ -35,6 +35,8 @@ public:
 
 	inline const std::string & getName() const { return _logName; }
 	inline void setName(const std::string & logName) { _logName = logName; }
+
+	bool openExisting(const std::string & fileName);
 
 	bool open(const std::string & D0, const std::string & A0);
 	bool close(const std::string & Aj);

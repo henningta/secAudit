@@ -93,7 +93,7 @@ Message UntrustedObject::createLog(const std::string & logName) {
 	}
 
 	// encrypt K0
-	if ( ! msgFact.set_pkencrypt("ENCRYPTED_K0", SESSION_KEY_LEN, 
+	if ( ! msgFact.set_pkencrypt("ENCRYPTED_K0", SESSION_KEY_LEN,
 					(unsigned char *) &K0[0], trustPub) ) {
 		fprintf(fpErr, "Error: Could not encrypt K0\n");
 		// TODO: Stop here?
@@ -173,7 +173,7 @@ Message UntrustedObject::createLog(const std::string & logName) {
         first4Last4("createLog K0", (unsigned char *) &K0[0], SESSION_KEY_LEN);
         first4Last4("createLog A0", (unsigned char *) &A0[0], AUTH_KEY_LEN);
         first4Last4("createLog X0", (unsigned char *) &X0[0], X0.length() );
-        first4Last4("createLog X0||signedX0", (unsigned char *) &X0DataSig[0], X0DataSig.length());  
+        first4Last4("createLog X0||signedX0", (unsigned char *) &X0DataSig[0], X0DataSig.length());
 	*/
 
 	return msgFact.get_message();
@@ -202,7 +202,7 @@ void UntrustedObject::verifyInitResponse(Message M1) {
         tmpVector = M1.get_payload("ENCRYPTED_K1");
 
         // obtain K1
-        if ( ! cryptsuite::pkDecrypt((unsigned char *) &tmpVector[0], 
+        if ( ! cryptsuite::pkDecrypt((unsigned char *) &tmpVector[0],
 					tmpVector.size(), &tmpBuf, priv) ) {
                 fprintf(fpErr, "Error: Could not decrypt K1\n");
 		close_log = true;
@@ -213,7 +213,7 @@ void UntrustedObject::verifyInitResponse(Message M1) {
 
         // obtain X1 || signedX1
         tmpVector = M1.get_payload("ENCRYPTED_X1_DATA");
-        decBytes = cryptsuite::symDecrypt((unsigned char *) &tmpVector[0], 
+        decBytes = cryptsuite::symDecrypt((unsigned char *) &tmpVector[0],
 					tmpVector.size(),&tmpBuf, (unsigned char *) &K1[0]);
 
         if (decBytes <= 0) {
@@ -229,11 +229,11 @@ void UntrustedObject::verifyInitResponse(Message M1) {
         tmpVector = M1.get_payload("X1LEN");
         tmpVector.push_back('\0');
         X1Len = atoi((const char *) &tmpVector[0]);
-	
+
 	logName = decX1Data.substr(1, decX1Data.length() - MD_BYTES - SIG_BYTES - 1);
 
 	// verify X1
-	if ( ! cryptsuite::verifySignature((unsigned char *) &decX1Data[0], X1Len, 
+	if ( ! cryptsuite::verifySignature((unsigned char *) &decX1Data[0], X1Len,
 					(unsigned char *) &decX1Data[0] + X1Len, trustPub) ) {
 		fprintf(fpErr, "Error: Could not verify X1\n");
 		close_log = true;
@@ -259,9 +259,9 @@ void UntrustedObject::verifyInitResponse(Message M1) {
 
 	// form a new log entry with a 'M1 verified message'
 	// as opposed to Dj = M1
-	addEntry("M1_verified", LOG_ENTRY_APPEND);		
+	addEntry("M1_verified", LOG_ENTRY_APPEND);
 
-	/* DEBUG 
+	/* DEBUG
         first4Last4("verifyResp K1", (unsigned char *) &K1[0], SESSION_KEY_LEN);
         first4Last4("verifyResp X1||signedX1", (unsigned char *) &decX1Data[0], decX1Data.length());
 	*/
@@ -274,7 +274,7 @@ err:
 
 		addEntry(ts + " " + reason, LOG_ENTRY_ABNORMAL_CLOSE);
 		closeLog();
-			
+
 	}
 
 }
@@ -297,7 +297,7 @@ void UntrustedObject::incrementAj() {
  * function
  *
  * @param 	message 	the message of the log entry to be appended
- * @return 	Messgae
+ * @return 	Message
  * @author 	Travis Henning , Jackson Reed
  */
 Message UntrustedObject::addEntry(const std::string & message, const EntryType ENTRY_TYPE) {
