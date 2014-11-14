@@ -291,7 +291,7 @@ std::vector<std::string> TrustedObject::verificationResponse(Message M, Log& ope
 	}
 
 	if (vMode == VERIFY_ENTRY) {
-		Aj = Common::incrementHash(Aj, f);
+		Aj = Common::incrementHash(T_A0, f);
 		Wj = logEntries.at(f).getEntryType();
 		Kj = Common::hashTypeKey(Wj, Aj);
 		
@@ -305,6 +305,11 @@ std::vector<std::string> TrustedObject::verificationResponse(Message M, Log& ope
 			keys.push_back(Kj);	
 			Aj = Common::incrementHash(Aj, 1);
 		}
+	}
+
+	for (size_t i = 0; i < keys.size(); i++) {
+		std::string a = keys[i];
+		first4Last4("key", (unsigned char *) &a[0], MD_BYTES);
 	}
 
 	return keys;
