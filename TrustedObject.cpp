@@ -302,7 +302,7 @@ std::vector<std::string> TrustedObject::verificationResponse(Message M, Log& ope
 		for (size_t i = 0; i < logEntries.size(); i++) {
 			Wj = logEntries.at(i).getEntryType();
 			Kj = Common::hashTypeKey(Wj, Aj);
-			keys.push_back(Aj);	
+			keys.push_back(Kj);	
 			Aj = Common::incrementHash(Aj, 1);
 		}
 	}
