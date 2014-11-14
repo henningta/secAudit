@@ -94,7 +94,6 @@ int calcHMAC(unsigned char *in, size_t inLen, unsigned char **out, unsigned char
 int genRandBytes(unsigned char *in, size_t len);
 
 // in this namespace for now
-int genLogID(unsigned char *id);
 long int getCurrentTimeStamp(void);
 
 }
