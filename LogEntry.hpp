@@ -21,6 +21,7 @@ enum EntryType {
 };
 
 std::string entryTypeToString(EntryType type);
+EntryType stringToEntryType(const std::string & typeStr);
 
 class LogEntry {
 private:
@@ -33,6 +34,12 @@ public:
 			std::string Zj)
 		: _entryType(entryType), _encryptedDj(encryptedDj),
 		_Yj(Yj), _Zj(Zj) {}
+
+	friend std::ostream & operator << (std::ostream & out, LogEntry & entry) {
+		out << entryTypeToString(entry._entryType) << entry._encryptedDj
+			<< entry._Yj << entry._Zj;
+		return out;
+	}
 
 	inline EntryType getEntryType() const { return _entryType; }
 	inline std::string getEncryptedDj() const { return _encryptedDj; };
