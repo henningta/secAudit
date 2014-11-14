@@ -25,13 +25,14 @@ public:
   verifyEntryStart(Log & log , int n);
 
   Message
-  verifyEntryTwo(Log & log , int n);
+  verifyEntryTwo(Log & log ,Message m ,int n,unsigned char *keyN);
 
   Message
   verifyAllStart(Log & log);
 
   Message
-  verifyAllTwo(Log & log);
+  verifyAllTwo(Log & log,Message status,
+	       std::vector<unsigned char *> keys, std::string filename);
 
 };
 

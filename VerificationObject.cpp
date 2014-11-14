@@ -1,8 +1,11 @@
 #include "VerificationObject.hpp"
 #include <stdexcept>
+#include <iostream>
 #include "cryptsuite.hpp"
 #include "utils.hpp"
 #include "Common.hpp"
+#include <iostream> 
+#include <fstream>  
 
 extern FILE* fpErr;
 
@@ -21,7 +24,7 @@ VerificationObject::verifyEntryStart(Log & log , int n){
     if (i>n)//only verify entries up to n
       break;
 
-    std::string msg = it->getZj();
+    std::string msg = it->getYj();
     std::string check="";
     it--;
     std::string oldY= it->getYj();
@@ -31,7 +34,7 @@ VerificationObject::verifyEntryStart(Log & log , int n){
     if(msg.compare(check)!=0){
       fprintf(fpErr, "Error: Hash of Enrty %d is bad.\n",i);
 
-      throw std::runtime_error("Bad Hash");
+      throw std::runtime_error("Failed verification");
     } 
     i++;
   }   
@@ -58,7 +61,16 @@ VerificationObject::verifyEntryStart(Log & log , int n){
 }
 
 Message
-VerificationObject::verifyEntryTwo(Log & log , int n){
+VerificationObject::verifyEntryTwo(Log & log ,Message m ,int n,unsigned char *keyN){
+
+
+  unsigned char * unencrypt;
+  std::string enc= log.getEntry(n).getEncryptedDj();
+  size_t sizStr=
+    cryptsuite::symDecrypt((unsigned char *)&enc[0], enc.length(),&unencrypt, keyN);
+  std::string out((char * )unencrypt,sizStr);
+  std::cout<<out<<"\n";
+
 
  return mkr.get_message();
 }                  
@@ -79,7 +91,7 @@ VerificationObject::verifyAllStart(Log & log){
 
     if(msg.compare(check)!=0){
       fprintf(fpErr, "Error: Hash of Enrty %d is bad.\n",i);
-      throw std::runtime_error("Bad Hash");
+      throw std::runtime_error("Failed verification");
     }
     i++;
   }
@@ -102,6 +114,7 @@ VerificationObject::verifyAllStart(Log & log){
   mkr.set("IDlog",IDlog.length(),(unsigned char *)&IDlog[0]);
   mkr.set("p",p.length(),(unsigned char *)&p[0]);
   mkr.set("f",f.length(),(unsigned char *)&f[0]);
+
   mkr.set("Yf",Yf.length(),(unsigned char *)&Yf[0]);
   mkr.set("Zf",Zf.length(),(unsigned char *)&Zf[0]);
   mkr.set("Q",Q.length(),(unsigned char *)&Q[0]);
@@ -112,8 +125,27 @@ VerificationObject::verifyAllStart(Log & log){
 } 
 
 Message
-VerificationObject::verifyAllTwo(Log & log){
-  return mkr.get_message();
+VerificationObject::verifyAllTwo(Log & log,Message status,
+				 std::vector<unsigned char *> keys, 
+				 std::string filename){
+
+  /*
+  std::filebuf fb;
+  fb.open (filename.c_str(),std::ios::out);
+  std::ostream os(&fb);
+
+  unsigned char * unencrypt;
+  std::string enc= log.getEntry(n).getEncryptedDj();
+  size_t sizStr=
+    cryptsuite::symDecrypt((unsigned char *)&enc[0]
+			   ,enc.length(),&unencrypt, keyN);
+  std::string out((char * )unencrypt,sizStr);
+  os<<out<<"\n";
+
+ 
+  fb.close();
+  */
+ return mkr.get_message();
 }
 
 
