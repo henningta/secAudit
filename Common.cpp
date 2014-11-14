@@ -20,14 +20,14 @@ extern FILE *fpErr;
  *      @author Timothy Thong 
  */
 std::string Common::incrementHash(const std::string & base, int count) {
-	unsigned char *newKey;
+	unsigned char *newHash;
 	std::string result;
 	
 	result = base;
 	for (int i = 0; i < count; i++) {
-        	if ( cryptsuite::calcMD((unsigned char *) &result[0], AUTH_KEY_LEN, &newKey) ) {
-	                result.replace(0, AUTH_KEY_LEN, (const char *) newKey, AUTH_KEY_LEN);
-                	delete[] newKey;
+        	if ( cryptsuite::calcMD((unsigned char *) &result[0], MD_BYTES, &newHash) ) {
+	                result.replace(0, MD_BYTES, (const char *) newHash, MD_BYTES);
+                	delete[] newHash;
         	} else {
                 	fprintf(fpErr, "Error: Failed to increment hash\n");
         	}   
@@ -61,6 +61,7 @@ std::string Common::hashTypeKey(EntryType type, const std::string & keyAj) {
         }   
 
         std::string hashedKey((const char *)outHash, MD_BYTES);
+	delete[] outHash;
         return hashedKey;
 }
 
@@ -92,6 +93,7 @@ std::string Common::hashY(const std::string & prevY,
         } 
  
         std::string hashedY((const char *)outHash, MD_BYTES); 
+	delete[] outHash;
         return hashedY; 
 } 
  
@@ -116,6 +118,7 @@ std::string Common::hashZ(const std::string & Yj, const std::string & keyAj) {
         } 
  
         std::string hashedZ((const char *)outHash, HMAC_BYTES); 
+	delete[] outHash;
         return hashedZ; 
 } 
 
