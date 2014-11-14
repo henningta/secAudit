@@ -36,18 +36,5 @@ std::string numToString(T num) {
 	return ss.str();
 }
 
-/**
- * readToChar
- *
- * Reads characters from stream into string until specified character (or end
- * of file) is reached. Does not include ending character.
- *
- * @param 	stop 	character at which to stop reading
- * @param 	iStream input stream from which to read
- * @return 	string 	buffer read from stream
- * @author 	Travis Henning
- */
-std::string readToChar(char stop, std::istream & iStream);
-
 #endif // UTILS
 
