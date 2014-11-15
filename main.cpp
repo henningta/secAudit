@@ -43,6 +43,10 @@ void do_command(
 	untrustedObject.verifyInitResponse(M1);
 	std::cout << "Created " << cmdTokens[1] << "\n";
     }
+    else {
+      std::cout << help;
+    }
+
   }
 
   else if ((pos=cmd.find("add")) != std::string::npos) {
@@ -53,6 +57,10 @@ void do_command(
 	+ numToString(untrustedObject.getNumEntries() - 1)
 	+ "\n";
     }
+    else {
+      std::cout << help;
+    }
+
   }
 
   else if ((pos=cmd.find("closelog")) != std::string::npos) {
@@ -79,12 +87,10 @@ void do_command(
 		<< "\n";
     }
   }
-
+ 
   else if ((pos=cmd.find("verify")) != std::string::npos) {
-      std::cout << "Closed " + untrustedObject.getLogName() + "\n";
-  } else if ((pos=cmd.find("verify")) != std::string::npos) {
     std::vector<std::string> cmdTokens = split(cmd, ' ');
-
+    
     if(cmdTokens.size() == 2) {
       Log &log =untrustedObject.getOpenedLog();
       int n=std::stoi(cmdTokens[1]);
@@ -95,11 +101,20 @@ void do_command(
 	= trustedObject.verificationResponse(resp,log,closed);
       verificationObject.verifyEntryTwo(log,resp,n,
 					(unsigned char *)&(keys[0][0]));
-
+      
     }
-   } else {
-     std::cout << help;
-   }
+    else {
+      std::cout << help;
+    }
+
+  } 
+  
+
+
+
+  else {
+    std::cout << help;
+  }
 }
 
 /**
