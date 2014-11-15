@@ -14,6 +14,8 @@ std::string entryTypeToString(EntryType type) {
 		entryType = "LOG_ENTRY_CLOSE";
 	} else if (type == LOG_ENTRY_ABNORMAL_CLOSE) {
 		entryType = "LOG_ENTRY_ABNORMAL_CLOSE";
+	} else {
+		entryType = "LOG_ENTRY_MALFORMED";
 	}
 
 	return entryType;
@@ -32,6 +34,8 @@ EntryType stringToEntryType(const std::string & typeStr) {
 		type = LOG_ENTRY_CLOSE;
 	} else if (typeStr == "LOG_ENTRY_ABNORMAL_CLOSE") {
 		type = LOG_ENTRY_ABNORMAL_CLOSE;
+	} else {
+		type = LOG_ENTRY_MALFORMED;
 	}
 
 	return type;
