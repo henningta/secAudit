@@ -107,8 +107,7 @@ VerificationObject::verifyAllStart(Log & log){
       it++;
     }
     else{
-
-
+      oldY="00000000000000000000";
     }
 
     check= Common::hashY(oldY,it->getEncryptedDj(),it->getEntryType());
