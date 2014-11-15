@@ -9,6 +9,14 @@
 #include <openssl/x509.h>
 extern FILE* fpErr;
 
+/**
+ * TrustedObject::TrustedObject()
+ *
+ * TrustedObject constructor
+ *
+ * @author      	Timothy Thong
+ */
+
 TrustedObject::TrustedObject() {
 
 	// add keys
@@ -226,10 +234,12 @@ Message TrustedObject::verifyInitMessage(Message M0) {
 /**
  * TrustedObject::verificationResponse
  *
- * Verifies log entry if a log is currently opened
- * on the UntrustedObject
+ * sends decryption keys to verifier
  *
- * @author      	Timothy Thong
+ * @param	M		the message that contains information necessary for verification
+ * @param	openedLog	pointer to the last opened log in memory
+ * @return	keys		decryption keys to be sent to verifier
+ * @author      Timothy Thong
  */
 std::vector<std::string> TrustedObject::verificationResponse(Message M, Log& openedLog, ClosedLogEntries c) {
 	std::string			logName;
@@ -306,12 +316,7 @@ std::vector<std::string> TrustedObject::verificationResponse(Message M, Log& ope
 			Aj = Common::incrementHash(Aj, 1);
 		}
 	}
-/*
-	for (size_t i = 0; i < keys.size(); i++) {
-		std::string a = keys[i];
-		first4Last4("key", (unsigned char *) &a[0], MD_BYTES);
-	}
-*/
+
 	return keys;
 
 }

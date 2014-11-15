@@ -4,7 +4,7 @@
   Functions related to signing/verification, encryption/decryption
   and certificates.
 
-  @author(s) Timothy Thong
+  @author Timothy Thong
 
 */
 

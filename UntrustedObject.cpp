@@ -9,6 +9,15 @@
 
 extern FILE* fpErr;
 
+/**
+ * UntrustedObject::UntrustedObject()
+ *
+ * UntrustedObject constructor
+ *
+ * @param 	logName 	the name of the log file to be created (opened)
+ * @return 	UntrustedObject
+ * @author 	Travis Henning , Jackson Reed, Timothy Thong
+ */
 UntrustedObject::UntrustedObject() {
 	msgFact= MessageMaker(U_ID, MessageState::UNINITIALIZED);
 
@@ -179,12 +188,14 @@ Message UntrustedObject::createLog(const std::string & logName) {
 
 	return msgFact.get_message();
 }
+
 /**
 * UntrustedObject::verifyInitResponse
 *
 * The final step of startup- verify M1
 *
-* @author
+* @param	M1	message to verify
+* @author Timothy Thong
 */
 void UntrustedObject::verifyInitResponse(Message M1) {
 

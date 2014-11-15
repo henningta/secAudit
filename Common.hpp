@@ -6,7 +6,6 @@
  *
  * Functions that are common to all objects
  *
- * @author(s)	Timothy Thong
  */
 
 #include <fstream>

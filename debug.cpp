@@ -2,6 +2,17 @@
 #include <cstdlib>
 #include "debug.hpp"
 
+/**
+ * first4Last4 
+ *
+ * Prints the first 4 and last 4 bytes of a buffer
+ *
+ * @param	label	buffer identifier to be printed
+ * @param	buf	buffer to print
+ * @param	len	length of buffer
+ *
+ * @author              Timothy Thong
+ */
 void first4Last4(const char *label, unsigned char *buf, size_t len) {
 
         printf("%-30s", label);
