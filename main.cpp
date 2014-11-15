@@ -15,7 +15,17 @@
 
 const std::string help ="Usage:\n createlog <file-name.log>\n add <message_string>\n closelog \n verify <entry_no> \n verifyall <log-file-name.log> <out-file-name.txt>\n";
 
-// jackson reed, travis henning
+/**
+ * do_command
+ *
+ * Takes input from user and executes command
+ *
+ * @param 	cmd 	command to be executed
+ * @param 	untrustedObject
+ * @param 	trustedObject
+ * @param 	verificationObject
+ * @authors Jackson Reed, Travis Henning
+ */
 void do_command(
 		std::string cmd,
 		UntrustedObject & untrustedObject,
@@ -35,7 +45,7 @@ void do_command(
     } else {
       std::cout << help;
     }
-  } 
+  }
 
   else if ((pos=cmd.find("add")) != std::string::npos) {
     std::vector<std::string> cmdTokens = split(cmd, ' ');
@@ -47,12 +57,12 @@ void do_command(
     } else {
       std::cout << help;
     }
-  } 
-  
+  }
+
   else if ((pos=cmd.find("closelog")) != std::string::npos) {
     untrustedObject.closeLog();
     std::cout << "Closed " + untrustedObject.getLogName() + "\n";
-  } 
+  }
 
 
   else if ((pos=cmd.find("verifyall")) != std::string::npos) {
@@ -60,24 +70,24 @@ void do_command(
     std::cout << "verifyall : " << cmdTokens[1] << " " << cmdTokens[2] <<"\n";
     Log lg;
     lg.openExisting(cmdTokens[1]);
-    //int n=std::stoi(cmdTokens[1]);                                      
+    //int n=std::stoi(cmdTokens[1]);
     ClosedLogEntries closed = untrustedObject.getClosedLogEntries();
-    
+
     Message resp=
       verificationObject.verifyAllStart(lg);
     std::vector<std::string> keys
       = trustedObject.verificationResponse(resp,lg,closed);
     verificationObject.verifyAllTwo(lg,resp,keys,cmdTokens[2]);
-    
-    
+
+
     if(cmdTokens.size() == 3) {
       std::cout << "verifyall : " << cmdTokens[1] << " " << cmdTokens[2] \
 		<< "\n";
     }
   }
-  
+
   else if ((pos=cmd.find("verify")) != std::string::npos) {
-    
+
       std::cout << "Closed " + untrustedObject.getLogName() + "\n";
   } else if ((pos=cmd.find("verify")) != std::string::npos) {
 
@@ -99,14 +109,18 @@ void do_command(
     } else {
       std::cout << help;
     }
-    
+
    } else {
      std::cout << help;
    }
-   
+
 }
 
-// jackson reed, travis henning
+/**
+ * main
+ *
+ * @authors Jackson Reed, Travis Henning
+ */
 int main (int argc, char **argv) {
   UntrustedObject untrustedObject;
   TrustedObject trustedObject;
