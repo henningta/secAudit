@@ -6,26 +6,27 @@
 //Jackson Reed
 
 ////////////////////////
+//Jackson Reed
 Message::Message(std::string ID, MessageState state) {
 	mP= state;
 	mID=ID;
 }
-
+//Jackson Reed
 Message::Message() {
 
 }
-
+//Jackson Reed
 MessageState
 Message::get_p() {
 	return mP;
 }
-
+//Jackson Reed
 std::string
 Message::get_ID(){
 	return mID;
 }
 
-
+//jackson Reed
 std::vector<unsigned char>
 Message::get_payload(std::string name){
 	std::map<std::string, PayLoad>::iterator it = payloads.find(name);
@@ -41,6 +42,7 @@ Message::get_payload(std::string name){
 
 }
 
+//Jackson Reed
 int
 Message::get_payload_size(std::string name){
 	std::map<std::string, PayLoad>::iterator it = payloads.find(name);
@@ -54,7 +56,7 @@ Message::get_payload_size(std::string name){
 
 ////////////////////////
 
-
+//Jackson Reed
 int 
 MessageMaker::set_pkencrypt(std::string name, size_t leng ,unsigned char * unencrypted, EVP_PKEY *pkey) {
 
@@ -71,6 +73,8 @@ MessageMaker::set_pkencrypt(std::string name, size_t leng ,unsigned char * unenc
 	}
 }
 
+
+//Jackson Reed
 int
 MessageMaker::set_symencrypt(std::string name, size_t leng,unsigned char * unencrypted, unsigned char *key) {
 
@@ -88,6 +92,8 @@ MessageMaker::set_symencrypt(std::string name, size_t leng,unsigned char * unenc
 	}
 }
 
+
+//Jackson Reed
 int
 MessageMaker::set_sign(std::string name, size_t leng ,unsigned char * unencrypted, EVP_PKEY *pkey){
 
@@ -106,6 +112,7 @@ MessageMaker::set_sign(std::string name, size_t leng ,unsigned char * unencrypte
 
 }
 
+//Jackson Reed
 void
 MessageMaker::set(std::string name, size_t leng ,unsigned char * unencrypted){
 	PayLoad pay;
@@ -114,30 +121,30 @@ MessageMaker::set(std::string name, size_t leng ,unsigned char * unencrypted){
 	pay.len=leng;
 	msg.payloads[name]=pay;
 }
-
+//jackosn Reed
 void
 MessageMaker::clear_payload(){
 	msg.payloads.clear();
 }
-
+//jackosn Reed
 Message
 MessageMaker::get_message(){
 	return msg;
 }
-
+//Jackosn Reed
 MessageMaker::MessageMaker(std::string ID, MessageState state){
 	msg = Message(ID, state);
 }
-
+//jackson Reed
 MessageMaker::MessageMaker(){
 	msg=Message("UNINITIALIZED",MessageState::UNINITIALIZED);
 }
-
+//jackson reed
 void
 MessageMaker::set_ID(std::string ID){
 	msg.mID =ID;
 }
-
+//jackson Reed
 void
 MessageMaker::set_MessageState(MessageState state){
 	msg.mP=state;

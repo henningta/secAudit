@@ -1,3 +1,15 @@
+/**                                                                       
+ * VerificationObject.hpp                                                 
+ *                                                                        
+ * Represents the verification server which checks logs and log entries 
+   integrity after encryption                                             
+ *                                                                        
+ * @author(s)  Jackson Reed                              
+ */
+
+
+
+
 #include "VerificationObject.hpp"
 #include <stdexcept>
 #include <iostream>
@@ -9,9 +21,7 @@
 
 extern FILE* fpErr;
 
-//Jackson Reed
-
-//Part one verfies well formidness of log   
+//Jackson Reed  
 Message 
 VerificationObject::verifyEntryStart(Log & log , int n){
 
@@ -25,7 +35,7 @@ VerificationObject::verifyEntryStart(Log & log , int n){
 
 
   for (;it != logs.end(); ++it){
-    if (i>n)//only verify entries up to n
+    if (i>n)
       break;
 
     msg = it->getYj();
@@ -76,6 +86,8 @@ VerificationObject::verifyEntryStart(Log & log , int n){
   return mkr.get_message();
 }
 
+
+//Jackson Reed
 Message
 VerificationObject::verifyEntryTwo(Log & log ,Message m ,int n,unsigned char *keyN){
 
@@ -89,6 +101,8 @@ VerificationObject::verifyEntryTwo(Log & log ,Message m ,int n,unsigned char *ke
 
  return mkr.get_message();
 }                  
+
+//Jackson Reed
 
 Message 
 VerificationObject::verifyAllStart(Log & log){
@@ -146,6 +160,8 @@ VerificationObject::verifyAllStart(Log & log){
 
   return mkr.get_message();
 } 
+
+//Jackson Reed
 
 Message
 VerificationObject::verifyAllTwo(Log & log,Message status,
