@@ -94,14 +94,22 @@ Message
 VerificationObject::verifyAllStart(Log & log){
   std::vector<LogEntry> logs =log.getEntries();
   std::vector<LogEntry>::iterator it = logs.begin();
-  it++;
-  int i =1;
+  int i =0;
+  std::string oldY="";
+
   for (;it != logs.end(); ++it){
     std::string msg = it->getYj();
     std::string check="";
-    it--;
-    std::string oldY= it->getYj();
-    it++;
+    
+    if (i!=0){
+      it--;
+      oldY= it->getYj();
+      it++;
+    }
+    else{
+      oldY="00000000000000000000";
+    }
+
     check= Common::hashY(oldY,it->getEncryptedDj(),it->getEntryType());
 
     if(msg.compare(check)!=0){
