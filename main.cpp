@@ -158,6 +158,7 @@ int main (int argc, char **argv) {
     try{
       do_command(cmd, untrustedObject, trustedObject,
 		 verificationObject);
+	  std::cout.flush();
     } catch(std::exception& e) {
       std::cout << e.what() << "\n";
     }
