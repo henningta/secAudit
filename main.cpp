@@ -58,15 +58,16 @@ void do_command(
   else if ((pos=cmd.find("verifyall")) != std::string::npos) {
     std::vector<std::string> cmdTokens = split(cmd, ' ');
     std::cout << "verifyall : " << cmdTokens[1] << " " << cmdTokens[2] <<"\n";
-    Log log(cmdTokens[2]);
+    Log lg;
+    lg.openExisting(cmdTokens[1]);
     //int n=std::stoi(cmdTokens[1]);                                      
     ClosedLogEntries closed = untrustedObject.getClosedLogEntries();
     
     Message resp=
-      verificationObject.verifyAllStart(log);
+      verificationObject.verifyAllStart(lg);
     std::vector<std::string> keys
-      = trustedObject.verificationResponse(resp,log,closed);
-    verificationObject.verifyAllTwo(log,resp,keys,cmdTokens[2]);
+      = trustedObject.verificationResponse(resp,lg,closed);
+    verificationObject.verifyAllTwo(lg,resp,keys,cmdTokens[2]);
     
     
     if(cmdTokens.size() == 3) {
