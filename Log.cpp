@@ -46,44 +46,45 @@ bool Log::openExisting(const std::string & fileName) {
 		return false;
 	}
 
+	// shove entire file text into string
+	std::ostringstream fileStream;
+	fileStream << _logFile.rdbuf();
+	std::string fileText = fileStream.str();
+
 	std::string buf = "";
 	int sizes[4];
 	int sep = 0;
-	char c;
-	while (_logFile >> std::noskipws >> c) {
-		if (c == '|') {
-			//std::cout << "buf: " << buf << '\n';
+
+	// iterate through string
+	for (std::string::iterator i = fileText.begin(); i < fileText.end();
+			i++) {
+		if (*i == '|') {
 			sizes[sep] = std::atoi(buf.c_str());
 			buf.clear();
 			if (++sep == 4) {
-				std::string typeStr, Dj, Yj, Zj;
-				typeStr.resize(sizes[0]);
-				Dj.resize(sizes[1]);
-				Yj.resize(sizes[2]);
-				Zj.resize(sizes[3]);
-				_logFile.read(&typeStr[0], sizes[0]);
-				_logFile.read(&Dj[0], sizes[1]);
-				_logFile.read(&Yj[0], sizes[2]);
-				_logFile.read(&Zj[0], sizes[3]);
+				// pass pipe char
+				i++;
 
-				// type string to type
+				// read values
+				std::string typeStr(i, i + sizes[0]);
+				i += sizes[0];
+				std::string Dj(i, i + sizes[1]);
+				i += sizes[1];
+				std::string Yj(i, i + sizes[2]);
+				i += sizes[2];
+				std::string Zj(i, i + sizes[3]);
+				i += sizes[3];
+
+				// add entry
 				EntryType type = stringToEntryType(typeStr);
-
 				LogEntry entry(type, Dj, Yj, Zj);
 				_logEntries.push_back(entry);
-
-				//std::cout << entry << '\n';
-
-				// go past newline char
-				std::string newline;
-				newline.resize(1);
-				_logFile.read(&newline[0], 1);
 
 				// reset separation
 				sep = 0;
 			}
 		} else {
-			buf += c;
+			buf += *i;
 		}
 	}
 
