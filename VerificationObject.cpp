@@ -15,21 +15,34 @@ extern FILE* fpErr;
 Message 
 VerificationObject::verifyEntryStart(Log & log , int n){
 
-  std::cout<<"start\n";
 
   std::vector<LogEntry> logs =log.getEntries();
   std::vector<LogEntry>::iterator it = logs.begin();
-  it++;
-  int i =1;
+  int i =0;
+  std::string msg ="";
+  std::string check="";
+  std::string oldY="";
+
+
   for (;it != logs.end(); ++it){
     if (i>n)//only verify entries up to n
       break;
 
-    std::string msg = it->getYj();
-    std::string check="";
-    it--;
-    std::string oldY= it->getYj();
-    it++;
+    msg = it->getYj();
+    check="";
+    oldY="";
+
+    if (i!=0){
+      it--;
+      oldY= it->getYj();
+      it++;
+    }
+    else{
+
+      oldY="00000000000000000000";
+
+    }
+
     check= Common::hashY(oldY,it->getEncryptedDj(),it->getEntryType());
 
     if(msg.compare(check)!=0){
@@ -58,7 +71,6 @@ VerificationObject::verifyEntryStart(Log & log , int n){
   mkr.set("Zf",Zf.length(),(unsigned char *)&Zf[0]);
   mkr.set("Q",Q.length(),(unsigned char *)&Q[0]);
 
-  std::cout<<"end\n";
 
 
   return mkr.get_message();
@@ -66,7 +78,6 @@ VerificationObject::verifyEntryStart(Log & log , int n){
 
 Message
 VerificationObject::verifyEntryTwo(Log & log ,Message m ,int n,unsigned char *keyN){
-  std::cout<<"made it to 2\n";
 
   unsigned char * unencrypt;
   std::string enc= log.getEntry(n).getEncryptedDj();
