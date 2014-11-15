@@ -9,7 +9,6 @@
 
 extern FILE* fpErr;
 
-//This one is a two parter to mimic the protocall
 //Jackson Reed
 
 //Part one verfies well formidness of log   
