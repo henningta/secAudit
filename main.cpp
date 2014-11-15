@@ -70,24 +70,29 @@ void do_command(
 
 
   else if ((pos=cmd.find("verifyall")) != std::string::npos) {
+     
+   
     std::vector<std::string> cmdTokens = split(cmd, ' ');
-    std::cout << "verifyall : " << cmdTokens[1] << " " << cmdTokens[2] <<"\n";
-    Log lg;
-    lg.openExisting(cmdTokens[1]);
-    //int n=std::stoi(cmdTokens[1]);
-    ClosedLogEntries closed = untrustedObject.getClosedLogEntries();
-
-    Message resp=
-      verificationObject.verifyAllStart(lg);
-    std::vector<std::string> keys
-      = trustedObject.verificationResponse(resp,lg,closed);
-    verificationObject.verifyAllTwo(lg,resp,keys,cmdTokens[2]);
-    if(cmdTokens.size() == 3) {
-      std::cout << "verifyall : " << cmdTokens[1] << " " << cmdTokens[2] \
-		<< "\n";
+    if(cmdTokens.size()==3){      
+      std::cout << "verifyall : " << cmdTokens[1] << " " << cmdTokens[2] <<"\n";
+      Log lg;
+      lg.openExisting(cmdTokens[1]);
+      //int n=std::stoi(cmdTokens[1]);
+      ClosedLogEntries closed = untrustedObject.getClosedLogEntries();
+      
+      Message resp=
+	verificationObject.verifyAllStart(lg);
+      std::vector<std::string> keys
+	= trustedObject.verificationResponse(resp,lg,closed);
+      verificationObject.verifyAllTwo(lg,resp,keys,cmdTokens[2]);
+      
     }
+    else {
+      std::cout << help;
+    }
+
   }
- 
+  
   else if ((pos=cmd.find("verify")) != std::string::npos) {
     std::vector<std::string> cmdTokens = split(cmd, ' ');
     
