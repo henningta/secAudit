@@ -87,7 +87,7 @@ VerificationObject::verifyAllStart(Log & log){
   it++;
   int i =1;
   for (;it != logs.end(); ++it){
-    std::string msg = it->getZj();
+    std::string msg = it->getYj();
     std::string check="";
     it--;
     std::string oldY= it->getYj();
@@ -108,7 +108,7 @@ VerificationObject::verifyAllStart(Log & log){
 
   std::string IDlog=log.getLogName();
   std::string p = numToString<int>(MessageState::VER_START);
-  std::string f = numToString<int>(logs.size());
+  std::string f = numToString<int>(logs.size() - 1);
   std::string Yf = logs.back().getYj();
   std::string Zf = logs.back().getZj();
   std::string Q = numToString<int>(0);
@@ -153,7 +153,7 @@ VerificationObject::verifyAllTwo(Log & log,Message status,
     size_t sizStr=
       cryptsuite::symDecrypt((unsigned char *)&enc[0]
 			     ,enc.length(),&unencrypt,
-			     (unsigned char *)&enc[0]);
+			     (unsigned char *)&dec[0]);
     std::string out((char * )unencrypt,sizStr);
     os<<out<<"\n";
     key++;
