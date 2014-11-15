@@ -46,6 +46,7 @@ public:
 	inline int getNumEntries() { return _log.getNumEntries(); }
 	std::vector<LogEntry> & getEntries() { return _log.getEntries(); }
 	Log& getOpenedLog() { return _log; }
+	inline bool logIsOpen() { return _log.isOpen(); }
 };
 
 #endif // __UNTRUSTED_OBJECT_HPP__
