@@ -38,6 +38,10 @@ void do_command(
   if((pos=cmd.find("createlog")) != std::string::npos){
     std::vector<std::string> cmdTokens = split(cmd, ' ');
     if(cmdTokens.size()==2) {
+		if (untrustedObject.logIsOpen()) {
+			std::cout << "Please close current log first\n";
+			return;
+		}
 	Message M0 = untrustedObject.createLog(cmdTokens[1]);
 	Message M1 = trustedObject.verifyInitMessage(M0);
 	untrustedObject.verifyInitResponse(M1);
