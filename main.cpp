@@ -105,6 +105,11 @@ void do_command(
     std::vector<std::string> cmdTokens = split(cmd, ' ');
 
     if(cmdTokens.size() == 2) {
+		if (!untrustedObject.logIsOpen()) {
+			std::cout << "Failed verification\n";
+			return;
+		}
+
       Log &log =untrustedObject.getOpenedLog();
       int n=std::stoi(cmdTokens[1]);
       ClosedLogEntries closed = untrustedObject.getClosedLogEntries();
