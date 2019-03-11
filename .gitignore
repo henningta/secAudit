@@ -1,3 +1,10 @@
+### Custom
+
+SecureAudit
+keys/
+
+### Generated
+
 # Compiled Object files
 *.slo
 *.lo
